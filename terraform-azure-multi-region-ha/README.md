@@ -72,6 +72,7 @@ flowchart TD
 - `outputs.tf` - Aggregated endpoint, DR, and VMSS outputs.
 - `terraform.tfvars.example` - Sample variable file.
 - `scripts/cloud-init.sh` - Bootstraps Nginx for health endpoint.
+- `k8s-examples/persistent-volume-nginx.yaml` - AKS workload example with persistent volume claim.
 - `docs/images/architecture-overview.svg` - Architecture visual.
 - `docs/images/failover-flow.svg` - Failover/fallback flow visual.
 - `docs/images/aks-operations-flow.svg` - AKS deployment and access workflow visual.
@@ -226,16 +227,29 @@ kubectl get nodes
 3. Run `terraform apply`.
 4. Fetch kubeconfig for each region from `aks_kubeconfig_commands` output.
 
-### C) Deploy a quick test workload
+### C) Deploy a Kubernetes workload using volume (PVC)
 
 ```bash
-kubectl create deployment demo-nginx --image=nginx
-kubectl expose deployment demo-nginx --port=80 --type=ClusterIP
-kubectl get pods -o wide
-kubectl get svc demo-nginx
+kubectl apply -f k8s-examples/persistent-volume-nginx.yaml
+kubectl get pvc -n apps-demo
+kubectl get pods -n apps-demo -o wide
+kubectl get svc -n apps-demo nginx-volume-demo
 ```
 
-### D) Recommended AKS baseline settings
+Note: this example uses `storageClassName: managed-csi` (default on AKS). If your cluster uses a different storage class, update the manifest.
+
+### D) Validate persistence after pod restart
+
+```bash
+kubectl exec -n apps-demo deploy/nginx-volume-demo -- sh -c 'echo "hello-from-pvc" >> /usr/share/nginx/html/index.html'
+kubectl delete pod -n apps-demo -l app=nginx-volume-demo
+kubectl wait --for=condition=ready pod -n apps-demo -l app=nginx-volume-demo --timeout=180s
+kubectl exec -n apps-demo deploy/nginx-volume-demo -- cat /usr/share/nginx/html/index.html
+```
+
+If `hello-from-pvc` is still present after restart, volume persistence is working as expected.
+
+### E) Recommended AKS baseline settings
 
 ```hcl
 enable_aks                    = true
