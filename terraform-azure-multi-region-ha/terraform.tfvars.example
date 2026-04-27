@@ -24,12 +24,21 @@ aks_kubernetes_version        = null
 aks_private_cluster_enabled   = false
 aks_sku_tier                  = "Free"
 aks_node_counts               = { primary = 2, secondary = 2 }
-aks_node_vm_sizes             = { primary = "Standard_B2s", secondary = "Standard_B2s" }
+aks_node_vm_sizes = {
+  primary   = "Standard_B2s"
+  secondary = "Standard_B2s"
+}
 aks_enable_cluster_autoscaler = true
 aks_node_min_counts           = { primary = 2, secondary = 2 }
 aks_node_max_counts           = { primary = 4, secondary = 4 }
-aks_service_cidrs             = { primary = "10.110.0.0/16", secondary = "10.120.0.0/16" }
-aks_dns_service_ips           = { primary = "10.110.0.10", secondary = "10.120.0.10" }
+aks_service_cidrs = {
+  primary   = "10.110.0.0/16"
+  secondary = "10.120.0.0/16"
+}
+aks_dns_service_ips = {
+  primary   = "10.110.0.10"
+  secondary = "10.120.0.10"
+}
 enable_aks_persistent_storage = true
 aks_persistent_storage_account_tier = "Standard"
 aks_persistent_storage_replication_type = "LRS"

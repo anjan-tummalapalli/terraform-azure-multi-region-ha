@@ -6,7 +6,7 @@ resource "azurerm_resource_group" "this" {
 }
 
 locals {
-  # Indexed maps allow deterministic NSG rule priorities from ordered CIDR lists.
+  # Indexed maps keep NSG rule priorities deterministic from ordered CIDR lists.
   http_source_map = {
     for index, cidr in var.allowed_http_source_cidrs :
     index => cidr

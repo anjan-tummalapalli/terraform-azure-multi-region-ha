@@ -27,10 +27,16 @@ locals {
     fallback  = 3
   }
 
-  base_name               = "${var.project_name}-${random_string.suffix.result}"
-  dr_storage_account_name = substr("st${replace(var.project_name, "-", "")}${random_string.suffix.result}", 0, 24)
-  common_tags             = merge(var.tags, { architecture = "multi-region-ha" })
-  # Region-specific compute profile keeps both regions robust while controlling cost.
+  base_name = "${var.project_name}-${random_string.suffix.result}"
+  dr_storage_account_name = substr(
+    "st${replace(var.project_name, "-", "")}${random_string.suffix.result}",
+    0,
+    24
+  )
+  common_tags = merge(var.tags, {
+    architecture = "multi-region-ha"
+  })
+  # Compute profile keeps both regions robust while controlling cost.
   regional_compute_profiles = {
     primary = {
       vm_sku             = var.primary_vm_sku
@@ -46,7 +52,7 @@ locals {
     }
   }
 
-  # AKS region selection allows cost-aware deployments (primary-only by default).
+  # AKS region selection allows cost-aware deployments by region role.
   aks_regions = var.enable_aks ? {
     for key, region in local.regions :
     key => region if contains(var.aks_region_roles, key)
@@ -67,8 +73,13 @@ locals {
       </head>
       <body style="font-family: Arial, sans-serif; margin: 2rem;">
         <h1>Service Recovery In Progress</h1>
-        <p>This is the emergency fallback endpoint for <strong>${var.project_name}</strong>.</p>
-        <p>Primary and secondary regional endpoints are currently unavailable.</p>
+        <p>
+          This is the emergency fallback endpoint for
+          <strong>${var.project_name}</strong>.
+        </p>
+        <p>
+          Primary and secondary regional endpoints are currently unavailable.
+        </p>
         <p>Please retry shortly.</p>
       </body>
     </html>
@@ -92,7 +103,7 @@ module "regional_foundation" {
   common_tags               = local.common_tags
 }
 
-# Builds per-region load-balancer stack (Public IP, LB, backend pool, probe, rule).
+# Builds per-region LB stack (public IP, pool, probe, and routing rule).
 module "regional_load_balancer" {
   for_each = local.regions
 
@@ -121,15 +132,19 @@ module "regional_compute" {
   vm_sku              = local.regional_compute_profiles[each.key].vm_sku
   instances           = local.regional_compute_profiles[each.key].instances
   use_spot            = local.regional_compute_profiles[each.key].use_spot
-  spot_max_bid_price  = local.regional_compute_profiles[each.key].spot_max_bid_price
-  admin_username      = var.vm_admin_username
-  ssh_public_key      = var.ssh_public_key
-  health_probe_id     = module.regional_load_balancer[each.key].probe_id
-  backend_pool_id     = module.regional_load_balancer[each.key].backend_pool_id
-  custom_data_base64 = base64encode(templatefile("${path.module}/scripts/cloud-init.sh", {
-    region = each.value.location
-    role   = each.key
-  }))
+  spot_max_bid_price = (
+    local.regional_compute_profiles[each.key].spot_max_bid_price
+  )
+  admin_username  = var.vm_admin_username
+  ssh_public_key  = var.ssh_public_key
+  health_probe_id = module.regional_load_balancer[each.key].probe_id
+  backend_pool_id = module.regional_load_balancer[each.key].backend_pool_id
+  custom_data_base64 = base64encode(
+    templatefile("${path.module}/scripts/cloud-init.sh", {
+      region = each.value.location
+      role   = each.key
+    })
+  )
   common_tags = local.common_tags
 }
 
@@ -139,12 +154,14 @@ module "aks_kubernetes" {
 
   source = "./modules/aks_kubernetes"
 
-  region_key                = each.key
-  base_name                 = local.base_name
-  project_name              = var.project_name
-  unique_suffix             = random_string.suffix.result
-  location                  = module.regional_foundation[each.key].location
-  resource_group_name       = module.regional_foundation[each.key].resource_group_name
+  region_key    = each.key
+  base_name     = local.base_name
+  project_name  = var.project_name
+  unique_suffix = random_string.suffix.result
+  location      = module.regional_foundation[each.key].location
+  resource_group_name = (
+    module.regional_foundation[each.key].resource_group_name
+  )
   subnet_id                 = module.regional_foundation[each.key].subnet_id
   kubernetes_version        = var.aks_kubernetes_version
   private_cluster_enabled   = var.aks_private_cluster_enabled
@@ -165,11 +182,13 @@ module "aks_persistent_storage" {
 
   source = "./modules/aks_persistent_storage"
 
-  region_key               = each.key
-  project_name             = var.project_name
-  unique_suffix            = random_string.suffix.result
-  location                 = module.regional_foundation[each.key].location
-  resource_group_name      = module.regional_foundation[each.key].resource_group_name
+  region_key    = each.key
+  project_name  = var.project_name
+  unique_suffix = random_string.suffix.result
+  location      = module.regional_foundation[each.key].location
+  resource_group_name = (
+    module.regional_foundation[each.key].resource_group_name
+  )
   subnet_id                = module.regional_foundation[each.key].subnet_id
   account_tier             = var.aks_persistent_storage_account_tier
   account_replication_type = var.aks_persistent_storage_replication_type
@@ -182,8 +201,10 @@ module "aks_persistent_storage" {
 module "dr_storage_fallback" {
   source = "./modules/dr_storage_fallback"
 
-  storage_account_name    = local.dr_storage_account_name
-  resource_group_name     = module.regional_foundation["primary"].resource_group_name
+  storage_account_name = local.dr_storage_account_name
+  resource_group_name = (
+    module.regional_foundation["primary"].resource_group_name
+  )
   location                = module.regional_foundation["primary"].location
   dr_data_retention_days  = var.dr_data_retention_days
   enable_fallback_website = var.enable_fallback_website
@@ -195,11 +216,16 @@ module "dr_storage_fallback" {
 module "global_traffic_manager" {
   source = "./modules/global_traffic_manager"
 
-  base_name               = local.base_name
-  project_name            = var.project_name
-  unique_suffix           = random_string.suffix.result
-  resource_group_name     = module.regional_foundation["primary"].resource_group_name
-  regional_targets        = { for key, lb in module.regional_load_balancer : key => lb.public_ip_fqdn }
+  base_name     = local.base_name
+  project_name  = var.project_name
+  unique_suffix = random_string.suffix.result
+  resource_group_name = (
+    module.regional_foundation["primary"].resource_group_name
+  )
+  regional_targets = {
+    for key, lb in module.regional_load_balancer :
+    key => lb.public_ip_fqdn
+  }
   endpoint_priorities     = local.endpoint_priorities
   enable_fallback_website = var.enable_fallback_website
   fallback_target         = module.dr_storage_fallback.primary_web_host

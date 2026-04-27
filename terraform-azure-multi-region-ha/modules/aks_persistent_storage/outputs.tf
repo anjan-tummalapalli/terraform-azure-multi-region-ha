@@ -4,7 +4,7 @@ output "storage_account_name" {
 }
 
 output "storage_account_id" {
-  description = "Resource ID of the storage account used by AKS persistent volumes."
+  description = "Resource ID of the storage account for AKS persistent volumes."
   value       = azurerm_storage_account.this.id
 }
 
@@ -19,6 +19,6 @@ output "resource_group_name" {
 }
 
 output "kubernetes_secret_name" {
-  description = "Recommended Kubernetes secret name for Azure Files credentials."
+  description = "Recommended Kubernetes secret name for Azure Files auth."
   value       = "azurefile-secret-${var.region_key}"
 }

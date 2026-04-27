@@ -36,7 +36,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "this" {
     public_key = var.ssh_public_key
   }
 
-  # Enables Managed Identity so workloads can use Azure RBAC without embedded secrets.
+  # Enables Managed Identity for Azure RBAC without embedded secrets.
   identity {
     type = "SystemAssigned"
   }

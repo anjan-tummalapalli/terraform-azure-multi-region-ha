@@ -7,7 +7,8 @@ This Terraform project deploys a resilient Azure architecture with:
 - **Disaster recovery storage:** RA-GRS Storage Account for DR artifacts
 - **Last-resort fallback:** Static maintenance website endpoint
 - **Kubernetes platform:** AKS module (primary and secondary enabled by default)
-- **Persistent volumes:** Azure Files shares for AKS workloads in each AKS region
+- **Persistent volumes:** Azure Files shares for AKS workloads in each
+  AKS region
 
 ## What Is Implemented
 
@@ -16,14 +17,16 @@ This Terraform project deploys a resilient Azure architecture with:
 - Traffic Manager prioritizes India first and US second.
 
 2. Disaster recovery mechanism
-- Geo-redundant (`RA-GRS`) storage account for DR artifacts and recovery payloads.
+- Geo-redundant (`RA-GRS`) storage account for DR artifacts and
+  recovery payloads.
 - Private `dr-backups` container for backup exports/runbook payloads.
 - Blob versioning + retention lifecycle policy (`dr_data_retention_days`).
 
 3. Fallback mechanism
 - Static website endpoint hosted in DR storage.
 - Added as **Priority 3** Traffic Manager endpoint.
-- If both regional endpoints are unhealthy, users receive maintenance page instead of hard downtime.
+- If both regional endpoints are unhealthy, users get a maintenance page
+  instead of hard downtime.
 
 4. Controlled failover/failback switch
 - `force_failover_to_secondary = true` makes US region active.
@@ -32,7 +35,8 @@ This Terraform project deploys a resilient Azure architecture with:
 5. Cost-optimized robust default compute profile
 - Primary runs `2 x Standard_B2s` (regular priority).
 - Secondary runs `2 x Standard_B2s` (regular priority).
-- Secondary Spot remains available but disabled by default for resilience-first operations.
+- Secondary Spot remains available but disabled by default for
+  resilience-first operations.
 
 6. Security-first baseline controls
 - SSH access is disabled by default (`enable_ssh_access = false`).
@@ -41,7 +45,8 @@ This Terraform project deploys a resilient Azure architecture with:
 - DR storage uses TLS 1.2+, private backup container, and lifecycle retention.
 
 7. Kubernetes module support
-- AKS clusters are deployed through a dedicated module (`modules/aks_kubernetes`).
+- AKS clusters are deployed through a dedicated module
+  (`modules/aks_kubernetes`).
 - Default configuration deploys AKS in both regions with autoscaling.
 - Cluster sizing is kept cost-aware via node VM sizing and autoscaler limits.
 
@@ -53,7 +58,7 @@ This Terraform project deploys a resilient Azure architecture with:
 
 ## Architecture
 
-![Azure multi-region architecture with DR and fallback](docs/images/architecture-overview.svg)
+![Azure multi-region architecture](docs/images/architecture-overview.svg)
 
 ### Architecture Diagram (Mermaid)
 
@@ -64,7 +69,7 @@ flowchart TD
     TM -->|Priority 2 default| US["East US 2: LB + VMSS + AKS"]
     TM -->|Priority 3| FB["Fallback Static Website"]
 
-    DR["RA-GRS DR Storage\n- dr-backups container\n- versioning + retention"] --> FB
+    DR["RA-GRS DR Storage\n- dr-backups\n- versioning + retention"] --> FB
 ```
 
 ## Failover and Fallback Flow
@@ -79,22 +84,32 @@ flowchart TD
 - `outputs.tf` - Aggregated endpoint, DR, and VMSS outputs.
 - `terraform.tfvars.example` - Sample variable file.
 - `scripts/cloud-init.sh` - Bootstraps Nginx for health endpoint.
-- `k8s-examples/persistent-volume-nginx.yaml` - AKS workload example with persistent volume claim.
-- `k8s-examples/azurefile-static-pv-nginx.yaml` - Static PV + PVC example backed by Terraform-managed Azure Files share.
+- `k8s-examples/persistent-volume-nginx.yaml` - AKS workload example
+  with persistent volume claim.
+- `k8s-examples/azurefile-static-pv-nginx.yaml` - Static PV + PVC
+  example using Terraform-managed Azure Files share.
 - `docs/images/architecture-overview.svg` - Architecture visual.
 - `docs/images/failover-flow.svg` - Failover/fallback flow visual.
-- `docs/images/aks-operations-flow.svg` - AKS deployment and access workflow visual.
+- `docs/images/aks-operations-flow.svg` - AKS deployment and access
+  workflow visual.
 - `examples/*.tfvars` - Ready-to-use deployment profiles for common scenarios.
 
 ## Module Layout
 
-- `modules/regional_foundation` - Resource Group, VNet, Subnet, NSG, and subnet association.
-- `modules/regional_load_balancer` - Public IP, Load Balancer, backend pool, probe, and rule.
-- `modules/regional_compute` - Linux VM Scale Set attached to regional backend pool.
-- `modules/aks_kubernetes` - AKS cluster per selected region with secure defaults.
-- `modules/aks_persistent_storage` - Azure Files storage account + file share for AKS persistent volumes.
-- `modules/dr_storage_fallback` - RA-GRS storage, DR backup container, lifecycle policy, fallback static pages.
-- `modules/global_traffic_manager` - Traffic Manager profile, regional endpoints, fallback endpoint.
+- `modules/regional_foundation` - Resource Group, VNet, Subnet, NSG,
+  and subnet association.
+- `modules/regional_load_balancer` - Public IP, Load Balancer, backend
+  pool, probe, and rule.
+- `modules/regional_compute` - Linux VM Scale Set attached to regional
+  backend pool.
+- `modules/aks_kubernetes` - AKS cluster per selected region with
+  secure defaults.
+- `modules/aks_persistent_storage` - Azure Files account + file share
+  for AKS persistent volumes.
+- `modules/dr_storage_fallback` - RA-GRS storage, DR backup container,
+  lifecycle policy, fallback pages.
+- `modules/global_traffic_manager` - Traffic Manager profile, regional
+  endpoints, and fallback endpoint.
 
 ## Key Variables
 
@@ -103,16 +118,22 @@ flowchart TD
 - `dr_data_retention_days` (number): retention for DR backup artifacts.
 - `primary_vm_instances` / `secondary_vm_instances`: region-specific sizing.
 - `primary_vm_sku` / `secondary_vm_sku`: region-specific VM SKUs.
-- `enable_secondary_spot` / `secondary_spot_max_bid_price`: optional Spot savings controls for overflow/non-critical capacity.
+- `enable_secondary_spot` / `secondary_spot_max_bid_price`: optional
+  Spot savings for overflow/non-critical capacity.
 - `allowed_http_source_cidrs`: explicit HTTP source CIDR allowlist.
 - `enable_ssh_access` / `allowed_ssh_source_cidrs`: break-glass SSH controls.
 - `enable_aks` / `aks_region_roles`: AKS enablement and region selection.
 - `aks_node_counts` / `aks_node_vm_sizes`: AKS sizing controls.
-- `aks_enable_cluster_autoscaler`, `aks_node_min_counts`, `aks_node_max_counts`: AKS scaling controls.
-- `aks_private_cluster_enabled`, `aks_sku_tier`: AKS security/cost posture controls.
+- `aks_enable_cluster_autoscaler`, `aks_node_min_counts`,
+  `aks_node_max_counts`: AKS scaling controls.
+- `aks_private_cluster_enabled`, `aks_sku_tier`: AKS security/cost
+  posture controls.
 - `enable_aks_persistent_storage`: enables Azure Files creation for AKS volumes.
-- `aks_persistent_storage_account_tier`, `aks_persistent_storage_replication_type`: persistent storage performance/redundancy controls.
-- `aks_persistent_file_share_name`, `aks_persistent_share_quota_gb`: share name and capacity controls.
+- `aks_persistent_storage_account_tier`,
+  `aks_persistent_storage_replication_type`: storage performance and
+  redundancy controls.
+- `aks_persistent_file_share_name`, `aks_persistent_share_quota_gb`:
+  share name and capacity controls.
 
 ## Security Principles
 
@@ -125,11 +146,14 @@ flowchart TD
 - Prefer Azure RBAC and managed identities over static credentials in code.
 
 3. Defense in depth
-- Use regional isolation, NSGs, load balancer probes, and Traffic Manager failover.
-- Keep fallback endpoint limited to maintenance experience, not privileged functions.
+- Use regional isolation, NSGs, load balancer probes, and
+  Traffic Manager failover.
+- Keep fallback endpoint limited to maintenance experience, not
+  privileged functions.
 
 4. Data protection and retention discipline
-- Store DR artifacts in private blob container with versioning and retention controls.
+- Store DR artifacts in a private blob container with versioning and
+  retention controls.
 - Tune retention (`dr_data_retention_days`) to compliance minimum needed.
 
 5. Controlled emergency access
@@ -217,7 +241,9 @@ terraform apply -var-file="examples/04-active-active-aks.tfvars"
 terraform output aks_cluster_names
 ```
 
-Note: each example file contains `ssh_public_key = "REPLACE_WITH_YOUR_SSH_PUBLIC_KEY"`. Replace that value before apply.
+Note: each example file contains
+`ssh_public_key = "REPLACE_WITH_YOUR_SSH_PUBLIC_KEY"`.
+Replace that value before apply.
 
 ## Kubernetes (AKS) Instructions
 
@@ -238,7 +264,8 @@ kubectl get nodes
 ### B) Tune AKS scale profile for your workload
 
 1. Keep `aks_region_roles = ["primary", "secondary"]`.
-2. Tune `aks_node_counts`, `aks_node_min_counts`, and `aks_node_max_counts` per region.
+2. Tune `aks_node_counts`, `aks_node_min_counts`, and
+   `aks_node_max_counts` per region.
 3. Run `terraform apply`.
 4. Fetch kubeconfig for each region from `aks_kubeconfig_commands` output.
 
@@ -251,7 +278,8 @@ kubectl get pods -n apps-demo -o wide
 kubectl get svc -n apps-demo nginx-volume-demo
 ```
 
-Note: this example uses `storageClassName: managed-csi` (default on AKS). If your cluster uses a different storage class, update the manifest.
+Note: this example uses `storageClassName: managed-csi` (default on AKS).
+If your cluster uses a different storage class, update the manifest.
 
 This manifest demonstrates:
 - Dynamic volume provisioning through a `PersistentVolumeClaim`.
@@ -267,8 +295,12 @@ This manifest demonstrates:
 ```bash
 ROLE="primary"
 AKS_RG=$(terraform output -json regional_resource_groups | jq -r ".${ROLE}")
-STORAGE_ACCOUNT=$(terraform output -json aks_persistent_storage_accounts | jq -r ".${ROLE}")
-FILE_SHARE=$(terraform output -json aks_persistent_storage_shares | jq -r ".${ROLE}")
+STORAGE_ACCOUNT=$(
+  terraform output -json aks_persistent_storage_accounts | jq -r ".${ROLE}"
+)
+FILE_SHARE=$(
+  terraform output -json aks_persistent_storage_shares | jq -r ".${ROLE}"
+)
 STORAGE_KEY=$(az storage account keys list \
   --resource-group "$AKS_RG" \
   --account-name "$STORAGE_ACCOUNT" \
@@ -305,13 +337,17 @@ kubectl get deploy,svc -n apps-demo
 ### E) Validate persistence after pod restart
 
 ```bash
-kubectl exec -n apps-demo deploy/nginx-volume-demo -- sh -c 'echo "hello-from-pvc" >> /usr/share/nginx/html/index.html'
+kubectl exec -n apps-demo deploy/nginx-volume-demo -- sh -c \
+  'echo "hello-from-pvc" >> /usr/share/nginx/html/index.html'
 kubectl delete pod -n apps-demo -l app=nginx-volume-demo
-kubectl wait --for=condition=ready pod -n apps-demo -l app=nginx-volume-demo --timeout=180s
-kubectl exec -n apps-demo deploy/nginx-volume-demo -- cat /usr/share/nginx/html/index.html
+kubectl wait --for=condition=ready pod -n apps-demo \
+  -l app=nginx-volume-demo --timeout=180s
+kubectl exec -n apps-demo deploy/nginx-volume-demo -- \
+  cat /usr/share/nginx/html/index.html
 ```
 
-If `hello-from-pvc` is still present after restart, volume persistence is working as expected.
+If `hello-from-pvc` is still present after restart, volume persistence is
+working as expected.
 
 ### F) Recommended AKS baseline settings
 
@@ -334,7 +370,8 @@ aks_persistent_storage_replication_type = "LRS"
 
 ```bash
 kubectl delete -f k8s-examples/persistent-volume-nginx.yaml
-kubectl delete -f k8s-examples/azurefile-static-pv-nginx.yaml --ignore-not-found=true
+kubectl delete -f k8s-examples/azurefile-static-pv-nginx.yaml \
+  --ignore-not-found=true
 kubectl delete namespace apps-demo --ignore-not-found=true
 ```
 
@@ -362,21 +399,26 @@ kubectl delete namespace apps-demo --ignore-not-found=true
 ### D) DR artifact handling process
 
 1. Use output `dr_storage_account_name` and container `dr-backups`.
-2. Upload backup exports/artifacts regularly (DB dumps, app exports, config bundles).
+2. Upload backup exports/artifacts regularly
+   (DB dumps, app exports, config bundles).
 3. Keep retention aligned with `dr_data_retention_days` and compliance needs.
 
 ### E) Last-resort fallback validation drill
 
 1. Keep `enable_fallback_website = true`.
-2. Simulate both regions unhealthy (for example, scale both VMSS sets to zero during a controlled test).
+2. Simulate both regions unhealthy
+   (for example, scale both VMSS sets to zero in a controlled test).
 3. Wait for Traffic Manager probe cycles.
-4. Access global URL and confirm maintenance page is served from fallback endpoint.
+4. Access global URL and confirm maintenance page is served from
+   fallback endpoint.
 
 ## Cost Optimization Strategy
 
 1. Right-size compute
-- Primary and secondary are intentionally kept at robust but right-sized baseline capacity.
-- Keep both regions at minimum viable resilient size, then scale out via autoscaler.
+- Primary and secondary are intentionally kept at robust but right-sized
+  baseline capacity.
+- Keep both regions at minimum viable resilient size, then scale out
+  via autoscaler.
 
 2. Use autoscale
 - Add VMSS autoscale rules for peak and off-peak usage.
@@ -403,7 +445,9 @@ secondary_spot_max_bid_price = -1
 ### Security-First Recommended Settings
 
 ```hcl
-allowed_http_source_cidrs = ["203.0.113.0/24"] # replace with your trusted ingress range(s)
+allowed_http_source_cidrs = [
+  "203.0.113.0/24" # replace with trusted ingress range(s)
+]
 enable_ssh_access         = false
 allowed_ssh_source_cidrs  = []
 ```
@@ -416,5 +460,7 @@ terraform destroy
 
 ## Notes
 
-- This baseline is intentionally simple; production hardening should include WAF, private ingress, secret rotation, and policy enforcement.
-- Multi-region infrastructure has continuous cost implications even with optimized dual-region baselines.
+- This baseline is intentionally simple; production hardening should
+  include WAF, private ingress, secret rotation, and policy enforcement.
+- Multi-region infrastructure has continuous cost implications even with
+  optimized dual-region baselines.

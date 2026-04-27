@@ -20,11 +20,20 @@ aks_private_cluster_enabled   = true
 aks_sku_tier                  = "Standard"
 aks_enable_cluster_autoscaler = true
 aks_node_counts               = { primary = 2, secondary = 2 }
-aks_node_vm_sizes             = { primary = "Standard_B2s", secondary = "Standard_B2s" }
-aks_node_min_counts           = { primary = 2, secondary = 2 }
-aks_node_max_counts           = { primary = 5, secondary = 5 }
-aks_service_cidrs             = { primary = "10.130.0.0/16", secondary = "10.140.0.0/16" }
-aks_dns_service_ips           = { primary = "10.130.0.10", secondary = "10.140.0.10" }
+aks_node_vm_sizes = {
+  primary   = "Standard_B2s"
+  secondary = "Standard_B2s"
+}
+aks_node_min_counts = { primary = 2, secondary = 2 }
+aks_node_max_counts = { primary = 5, secondary = 5 }
+aks_service_cidrs = {
+  primary   = "10.130.0.0/16"
+  secondary = "10.140.0.0/16"
+}
+aks_dns_service_ips = {
+  primary   = "10.130.0.10"
+  secondary = "10.140.0.10"
+}
 
 allowed_http_source_cidrs = ["203.0.113.0/24"]
 enable_ssh_access         = false

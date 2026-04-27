@@ -34,7 +34,7 @@ variable "subnet_id" {
 }
 
 variable "kubernetes_version" {
-  description = "Optional AKS Kubernetes version. Use null to let Azure choose default supported version."
+  description = "Optional AKS version. Null uses Azure default."
   type        = string
   default     = null
 }
@@ -74,8 +74,10 @@ variable "node_min_count" {
   type        = number
 
   validation {
-    condition     = var.enable_cluster_autoscaler ? var.node_min_count >= 1 : true
-    error_message = "node_min_count must be at least 1 when autoscaler is enabled."
+    condition = (
+      var.enable_cluster_autoscaler ? var.node_min_count >= 1 : true
+    )
+    error_message = "node_min_count must be >= 1 when autoscaler is enabled."
   }
 }
 
@@ -84,8 +86,13 @@ variable "node_max_count" {
   type        = number
 
   validation {
-    condition     = var.enable_cluster_autoscaler ? var.node_max_count >= var.node_min_count : true
-    error_message = "node_max_count must be greater than or equal to node_min_count when autoscaler is enabled."
+    condition = (
+      var.enable_cluster_autoscaler ?
+      var.node_max_count >= var.node_min_count : true
+    )
+    error_message = (
+      "node_max_count must be >= node_min_count when autoscaler is enabled."
+    )
   }
 }
 

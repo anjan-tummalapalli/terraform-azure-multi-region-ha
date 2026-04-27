@@ -1,87 +1,143 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
-  <title id="title">Azure Multi-Region HA with DR, Fallback, and AKS</title>
-  <desc id="desc">Traffic Manager routes to India primary, US secondary, and fallback website. Each region contains load balancer, VM scale set, and AKS cluster.</desc>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="1280"
+  height="860"
+  viewBox="0 0 1280 860"
+  role="img"
+  aria-labelledby="title desc"
+>
+  <title id="title">Azure multi-region architecture</title>
+  <desc id="desc">
+    Primary Central India and secondary East US 2 behind Traffic Manager,
+    with fallback website and DR storage.
+  </desc>
+
   <defs>
     <style>
-      .bg { fill: #f4f8fc; }
-      .title { font: 700 30px Arial, sans-serif; fill: #102a43; }
-      .subtitle { font: 500 16px Arial, sans-serif; fill: #334e68; }
-      .section-title { font: 700 18px Arial, sans-serif; fill: #102a43; }
-      .text { font: 500 14px Arial, sans-serif; fill: #243b53; }
-      .small { font: 500 12px Arial, sans-serif; fill: #486581; }
-      .client { fill: #ede9fe; stroke: #6d28d9; stroke-width: 2; }
-      .global { fill: #fff7d6; stroke: #c05621; stroke-width: 2; }
-      .primary { fill: #dcfce7; stroke: #15803d; stroke-width: 2; }
-      .secondary { fill: #dbeafe; stroke: #1d4ed8; stroke-width: 2; }
-      .fallback { fill: #fee2e2; stroke: #b91c1c; stroke-width: 2; }
-      .dr { fill: #fff1c2; stroke: #a16207; stroke-width: 2; }
-      .infra { fill: #ffffff; stroke: #9fb3c8; stroke-width: 1.4; }
-      .aks { fill: #e0f2fe; stroke: #0369a1; stroke-width: 1.8; }
-      .arrow-primary { stroke: #15803d; stroke-width: 3; fill: none; marker-end: url(#arrow-primary); }
-      .arrow-secondary { stroke: #1d4ed8; stroke-width: 3; fill: none; marker-end: url(#arrow-secondary); }
-      .arrow-fallback { stroke: #b91c1c; stroke-width: 3; fill: none; marker-end: url(#arrow-fallback); }
-      .arrow-global { stroke: #c05621; stroke-width: 3; fill: none; marker-end: url(#arrow-global); }
-      .arrow-dr { stroke: #a16207; stroke-width: 2.5; fill: none; marker-end: url(#arrow-dr); stroke-dasharray: 7 6; }
+      .bg { fill: #f5f8ff; }
+      .card { fill: #ffffff; stroke: #2f4f6f; stroke-width: 2; rx: 18; }
+      .title { fill: #0f172a; font: 700 34px 'Segoe UI', sans-serif; }
+      .head { fill: #0f172a; font: 700 22px 'Segoe UI', sans-serif; }
+      .txt { fill: #1e293b; font: 500 16px 'Segoe UI', sans-serif; }
+      .small { fill: #334155; font: 500 14px 'Segoe UI', sans-serif; }
+      .arrow {
+        fill: none;
+        stroke: #1d4ed8;
+        stroke-width: 3;
+        marker-end: url(#arrow-head);
+      }
+      .arrow-dr {
+        fill: none;
+        stroke: #b45309;
+        stroke-width: 3;
+        stroke-dasharray: 9 6;
+        marker-end: url(#arrow-dr-head);
+      }
     </style>
-    <marker id="arrow-primary" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0,10 3,0 6" fill="#15803d"/></marker>
-    <marker id="arrow-secondary" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0,10 3,0 6" fill="#1d4ed8"/></marker>
-    <marker id="arrow-fallback" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0,10 3,0 6" fill="#b91c1c"/></marker>
-    <marker id="arrow-global" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0,10 3,0 6" fill="#c05621"/></marker>
-    <marker id="arrow-dr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0,10 3,0 6" fill="#a16207"/></marker>
+    <marker
+      id="arrow-head"
+      markerWidth="10"
+      markerHeight="10"
+      refX="8"
+      refY="3"
+      orient="auto"
+    >
+      <polygon points="0 0,10 3,0 6" fill="#1d4ed8" />
+    </marker>
+    <marker
+      id="arrow-dr-head"
+      markerWidth="10"
+      markerHeight="10"
+      refX="8"
+      refY="3"
+      orient="auto"
+    >
+      <polygon points="0 0,10 3,0 6" fill="#b45309" />
+    </marker>
   </defs>
 
-  <rect class="bg" x="0" y="0" width="1440" height="900"/>
-  <text class="title" x="720" y="48" text-anchor="middle">Azure Multi-Region HA + DR + Fallback + AKS</text>
-  <text class="subtitle" x="720" y="75" text-anchor="middle">Primary: Central India | Secondary: East US 2 | AKS enabled in both regions by default</text>
+  <rect class="bg" x="0" y="0" width="1280" height="860" />
 
-  <rect class="client" x="600" y="105" width="240" height="66" rx="12"/>
-  <text class="section-title" x="720" y="144" text-anchor="middle">Client Requests</text>
+  <text class="title" x="640" y="58" text-anchor="middle">
+    Azure Multi-Region HA, DR, and Fallback
+  </text>
 
-  <rect class="global" x="470" y="215" width="500" height="120" rx="14"/>
-  <text class="section-title" x="720" y="258" text-anchor="middle">Azure Traffic Manager (Priority)</text>
-  <text class="text" x="720" y="286" text-anchor="middle">Priority 1: India | Priority 2: US | Priority 3: Fallback</text>
-  <text class="small" x="720" y="310" text-anchor="middle">Probe: HTTP / port 80</text>
+  <rect class="card" x="470" y="90" width="340" height="90" />
+  <text class="head" x="640" y="128" text-anchor="middle">Clients</text>
+  <text class="small" x="640" y="154" text-anchor="middle">
+    Global users enter through one DNS endpoint
+  </text>
 
-  <path class="arrow-global" d="M720 171 L720 215"/>
+  <rect class="card" x="390" y="220" width="500" height="130" />
+  <text class="head" x="640" y="264" text-anchor="middle">
+    Azure Traffic Manager (Priority)
+  </text>
+  <text class="txt" x="640" y="292" text-anchor="middle">
+    Priority 1: India, Priority 2: US, Priority 3: Fallback
+  </text>
+  <text class="small" x="640" y="318" text-anchor="middle">
+    Probe: HTTP on port 80
+  </text>
 
-  <rect class="primary" x="60" y="390" width="420" height="390" rx="16"/>
-  <text class="section-title" x="270" y="426" text-anchor="middle">Primary Region: Central India</text>
-  <rect class="infra" x="95" y="452" width="350" height="54" rx="8"/>
-  <text class="text" x="270" y="485" text-anchor="middle">RG + VNet + Subnet + NSG</text>
-  <rect class="infra" x="95" y="520" width="350" height="54" rx="8"/>
-  <text class="text" x="270" y="553" text-anchor="middle">Public Load Balancer</text>
-  <rect class="infra" x="95" y="588" width="350" height="54" rx="8"/>
-  <text class="text" x="270" y="621" text-anchor="middle">VM Scale Set (Cost-tuned)</text>
-  <rect class="aks" x="95" y="656" width="350" height="96" rx="10"/>
-  <text class="section-title" x="270" y="693" text-anchor="middle">AKS Cluster (Module)</text>
-  <text class="small" x="270" y="718" text-anchor="middle">Managed Identity + Azure Policy + Autoscaler</text>
-  <text class="small" x="270" y="739" text-anchor="middle">Enabled by default in both regions</text>
+  <rect class="card" x="70" y="410" width="360" height="290" />
+  <text class="head" x="250" y="450" text-anchor="middle">
+    Primary Region: Central India
+  </text>
+  <text class="txt" x="250" y="486" text-anchor="middle">
+    Resource Group, VNet, Subnet, NSG
+  </text>
+  <text class="txt" x="250" y="516" text-anchor="middle">
+    Public LB and VM Scale Set
+  </text>
+  <text class="txt" x="250" y="546" text-anchor="middle">
+    AKS cluster with autoscaler
+  </text>
+  <text class="small" x="250" y="580" text-anchor="middle">
+    Robust baseline with cost-aware sizing
+  </text>
 
-  <rect class="secondary" x="510" y="390" width="420" height="390" rx="16"/>
-  <text class="section-title" x="720" y="426" text-anchor="middle">Secondary Region: East US 2</text>
-  <rect class="infra" x="545" y="452" width="350" height="54" rx="8"/>
-  <text class="text" x="720" y="485" text-anchor="middle">RG + VNet + Subnet + NSG</text>
-  <rect class="infra" x="545" y="520" width="350" height="54" rx="8"/>
-  <text class="text" x="720" y="553" text-anchor="middle">Public Load Balancer</text>
-  <rect class="infra" x="545" y="588" width="350" height="54" rx="8"/>
-  <text class="text" x="720" y="621" text-anchor="middle">VM Scale Set (Robust baseline, cost-optimized)</text>
-  <rect class="aks" x="545" y="656" width="350" height="96" rx="10"/>
-  <text class="section-title" x="720" y="693" text-anchor="middle">AKS Cluster (Optional)</text>
-  <text class="small" x="720" y="718" text-anchor="middle">Enabled by default; tune with aks_node_counts per region</text>
-  <text class="small" x="720" y="739" text-anchor="middle">Use when active-active Kubernetes is needed</text>
+  <rect class="card" x="460" y="410" width="360" height="290" />
+  <text class="head" x="640" y="450" text-anchor="middle">
+    Secondary Region: East US 2
+  </text>
+  <text class="txt" x="640" y="486" text-anchor="middle">
+    Resource Group, VNet, Subnet, NSG
+  </text>
+  <text class="txt" x="640" y="516" text-anchor="middle">
+    Public LB and VM Scale Set
+  </text>
+  <text class="txt" x="640" y="546" text-anchor="middle">
+    AKS cluster with autoscaler
+  </text>
+  <text class="small" x="640" y="580" text-anchor="middle">
+    Failover target with right-sized baseline
+  </text>
 
-  <rect class="fallback" x="960" y="390" width="420" height="170" rx="16"/>
-  <text class="section-title" x="1170" y="428" text-anchor="middle">Fallback Endpoint</text>
-  <text class="text" x="1170" y="458" text-anchor="middle">Static Website Maintenance Page</text>
-  <text class="small" x="1170" y="482" text-anchor="middle">Traffic Manager Priority 3</text>
+  <rect class="card" x="850" y="410" width="360" height="130" />
+  <text class="head" x="1030" y="452" text-anchor="middle">
+    Fallback Endpoint
+  </text>
+  <text class="txt" x="1030" y="486" text-anchor="middle">
+    Static maintenance website
+  </text>
+  <text class="small" x="1030" y="514" text-anchor="middle">
+    Served only when both regions are unhealthy
+  </text>
 
-  <rect class="dr" x="960" y="585" width="420" height="195" rx="16"/>
-  <text class="section-title" x="1170" y="623" text-anchor="middle">DR Storage (RA-GRS)</text>
-  <text class="text" x="1170" y="653" text-anchor="middle">Private dr-backups container + versioning + retention</text>
-  <text class="small" x="1170" y="678" text-anchor="middle">Stores DR artifacts and hosts fallback website content</text>
+  <rect class="card" x="850" y="570" width="360" height="130" />
+  <text class="head" x="1030" y="612" text-anchor="middle">
+    DR Storage (RA-GRS)
+  </text>
+  <text class="txt" x="1030" y="644" text-anchor="middle">
+    Private dr-backups container + retention
+  </text>
+  <text class="small" x="1030" y="670" text-anchor="middle">
+    Stores artifacts used by DR runbooks
+  </text>
 
-  <path class="arrow-primary" d="M662 335 C560 360, 430 374, 310 390"/>
-  <path class="arrow-secondary" d="M748 335 C760 358, 760 375, 760 390"/>
-  <path class="arrow-fallback" d="M840 335 C970 360, 1080 374, 1140 390"/>
-  <path class="arrow-dr" d="M1170 585 L1170 560"/>
+  <path class="arrow" d="M640 180 L640 220" />
+  <path class="arrow" d="M520 350 L250 410" />
+  <path class="arrow" d="M640 350 L640 410" />
+  <path class="arrow" d="M760 350 L1030 410" />
+  <path class="arrow-dr" d="M1030 570 L1030 540" />
 </svg>

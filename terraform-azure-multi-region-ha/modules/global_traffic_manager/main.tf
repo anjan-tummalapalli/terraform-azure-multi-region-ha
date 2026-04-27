@@ -32,7 +32,7 @@ resource "azurerm_traffic_manager_external_endpoint" "regional" {
   enabled    = true
 }
 
-# Registers last-resort fallback endpoint used when regional endpoints are unavailable.
+# Registers last-resort fallback endpoint for full regional outage scenarios.
 resource "azurerm_traffic_manager_external_endpoint" "fallback" {
   count = var.enable_fallback_website ? 1 : 0
 

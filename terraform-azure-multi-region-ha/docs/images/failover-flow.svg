@@ -1,81 +1,157 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="740" viewBox="0 0 1360 740" role="img" aria-labelledby="title desc">
-  <title id="title">Failover and Fallback Workflow</title>
-  <desc id="desc">Traffic Manager routes from primary to secondary and then fallback maintenance page if both regions fail.</desc>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="1280"
+  height="760"
+  viewBox="0 0 1280 760"
+  role="img"
+  aria-labelledby="title desc"
+>
+  <title id="title">Failover and fallback sequence</title>
+  <desc id="desc">
+    Traffic Manager routes from India to US and then to fallback if both
+    regions fail health checks.
+  </desc>
+
   <defs>
     <style>
       .bg { fill: #f8fafc; }
-      .title { font: 700 30px Arial, sans-serif; fill: #102a43; }
-      .subtitle { font: 500 16px Arial, sans-serif; fill: #334e68; }
-      .step { fill: #ffffff; stroke: #9fb3c8; stroke-width: 2; }
-      .step-title { font: 700 17px Arial, sans-serif; fill: #102a43; }
-      .text { font: 500 14px Arial, sans-serif; fill: #243b53; }
-      .ok { fill: #dcfce7; stroke: #15803d; stroke-width: 2; }
-      .warn { fill: #dbeafe; stroke: #1d4ed8; stroke-width: 2; }
-      .crit { fill: #fee2e2; stroke: #b91c1c; stroke-width: 2; }
-      .dr { fill: #fff1c2; stroke: #a16207; stroke-width: 2; }
-      .arrow { stroke: #486581; stroke-width: 3; fill: none; marker-end: url(#a); }
-      .arrow2 { stroke: #1d4ed8; stroke-width: 3; fill: none; marker-end: url(#b); }
-      .arrow3 { stroke: #b91c1c; stroke-width: 3; fill: none; marker-end: url(#c); }
+      .step { fill: #ffffff; stroke: #334155; stroke-width: 2; rx: 18; }
+      .title { fill: #0f172a; font: 700 32px 'Segoe UI', sans-serif; }
+      .head { fill: #0f172a; font: 700 20px 'Segoe UI', sans-serif; }
+      .txt { fill: #1e293b; font: 500 15px 'Segoe UI', sans-serif; }
+      .note { fill: #334155; font: 500 14px 'Segoe UI', sans-serif; }
+      .a1 {
+        fill: none;
+        stroke: #15803d;
+        stroke-width: 3;
+        marker-end: url(#a1);
+      }
+      .a2 {
+        fill: none;
+        stroke: #1d4ed8;
+        stroke-width: 3;
+        marker-end: url(#a2);
+      }
+      .a3 {
+        fill: none;
+        stroke: #b91c1c;
+        stroke-width: 3;
+        marker-end: url(#a3);
+      }
     </style>
-    <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0, 10 3, 0 6" fill="#486581"/></marker>
-    <marker id="b" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0, 10 3, 0 6" fill="#1d4ed8"/></marker>
-    <marker id="c" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0, 10 3, 0 6" fill="#b91c1c"/></marker>
+    <marker id="a1" markerWidth="10" markerHeight="10" refX="8" refY="3">
+      <polygon points="0 0,10 3,0 6" fill="#15803d" />
+    </marker>
+    <marker id="a2" markerWidth="10" markerHeight="10" refX="8" refY="3">
+      <polygon points="0 0,10 3,0 6" fill="#1d4ed8" />
+    </marker>
+    <marker id="a3" markerWidth="10" markerHeight="10" refX="8" refY="3">
+      <polygon points="0 0,10 3,0 6" fill="#b91c1c" />
+    </marker>
   </defs>
 
-  <rect class="bg" x="0" y="0" width="1360" height="740"/>
-  <text class="title" x="680" y="52" text-anchor="middle">Traffic Manager Failover and Fallback Sequence</text>
-  <text class="subtitle" x="680" y="80" text-anchor="middle">Primary -> Secondary -> Fallback maintenance endpoint when both regions are unhealthy.</text>
+  <rect class="bg" x="0" y="0" width="1280" height="760" />
 
-  <rect class="step" x="60" y="170" width="250" height="180" rx="14"/>
-  <text class="step-title" x="185" y="212" text-anchor="middle">1. Normal</text>
-  <text class="text" x="185" y="245" text-anchor="middle">India endpoint healthy</text>
-  <text class="text" x="185" y="270" text-anchor="middle">Serves production traffic</text>
-  <text class="text" x="185" y="295" text-anchor="middle">US is robust warm standby</text>
+  <text class="title" x="640" y="56" text-anchor="middle">
+    Traffic Manager Failover and Fallback Flow
+  </text>
 
-  <rect class="step" x="340" y="170" width="250" height="180" rx="14"/>
-  <text class="step-title" x="465" y="212" text-anchor="middle">2. Detect Failure</text>
-  <text class="text" x="465" y="245" text-anchor="middle">India probe failures</text>
-  <text class="text" x="465" y="270" text-anchor="middle">Endpoint marked unhealthy</text>
-  <text class="text" x="465" y="295" text-anchor="middle">Priority 1 unavailable</text>
+  <rect class="step" x="40" y="130" width="220" height="200" />
+  <text class="head" x="150" y="170" text-anchor="middle">1. Normal</text>
+  <text class="txt" x="150" y="204" text-anchor="middle">India healthy</text>
+  <text class="txt" x="150" y="230" text-anchor="middle">
+    Priority 1 serves
+  </text>
+  <text class="txt" x="150" y="256" text-anchor="middle">
+    US waits as backup
+  </text>
 
-  <rect class="step" x="620" y="170" width="250" height="180" rx="14"/>
-  <text class="step-title" x="745" y="212" text-anchor="middle">3. Failover to US</text>
-  <text class="text" x="745" y="245" text-anchor="middle">US endpoint becomes active</text>
-  <text class="text" x="745" y="270" text-anchor="middle">Clients keep same global DNS</text>
-  <text class="text" x="745" y="295" text-anchor="middle">No client reconfiguration</text>
+  <rect class="step" x="285" y="130" width="220" height="200" />
+  <text class="head" x="395" y="170" text-anchor="middle">2. Detect</text>
+  <text class="txt" x="395" y="204" text-anchor="middle">
+    India probe fails
+  </text>
+  <text class="txt" x="395" y="230" text-anchor="middle">
+    Endpoint unhealthy
+  </text>
+  <text class="txt" x="395" y="256" text-anchor="middle">
+    Priority 1 removed
+  </text>
 
-  <rect class="step" x="900" y="170" width="250" height="180" rx="14"/>
-  <text class="step-title" x="1025" y="212" text-anchor="middle">4. Secondary Fails</text>
-  <text class="text" x="1025" y="245" text-anchor="middle">US endpoint also unhealthy</text>
-  <text class="text" x="1025" y="270" text-anchor="middle">Both regional endpoints down</text>
-  <text class="text" x="1025" y="295" text-anchor="middle">Fallback path activated</text>
+  <rect class="step" x="530" y="130" width="220" height="200" />
+  <text class="head" x="640" y="170" text-anchor="middle">3. Failover</text>
+  <text class="txt" x="640" y="204" text-anchor="middle">
+    US becomes active
+  </text>
+  <text class="txt" x="640" y="230" text-anchor="middle">Same global DNS</text>
+  <text class="txt" x="640" y="256" text-anchor="middle">
+    No client changes
+  </text>
 
-  <rect class="step" x="1180" y="170" width="140" height="180" rx="14"/>
-  <text class="step-title" x="1250" y="212" text-anchor="middle">5. Fallback</text>
-  <text class="text" x="1250" y="245" text-anchor="middle">Static site</text>
-  <text class="text" x="1250" y="270" text-anchor="middle">maintenance</text>
-  <text class="text" x="1250" y="295" text-anchor="middle">page served</text>
+  <rect class="step" x="775" y="130" width="220" height="200" />
+  <text class="head" x="885" y="170" text-anchor="middle">4. Dual Fault</text>
+  <text class="txt" x="885" y="204" text-anchor="middle">US also fails</text>
+  <text class="txt" x="885" y="230" text-anchor="middle">
+    Both regions down
+  </text>
+  <text class="txt" x="885" y="256" text-anchor="middle">
+    Fallback needed
+  </text>
 
-  <path class="arrow" d="M310 260 L340 260"/>
-  <path class="arrow" d="M590 260 L620 260"/>
-  <path class="arrow2" d="M870 260 L900 260"/>
-  <path class="arrow3" d="M1150 260 L1180 260"/>
+  <rect class="step" x="1020" y="130" width="220" height="200" />
+  <text class="head" x="1130" y="170" text-anchor="middle">5. Fallback</text>
+  <text class="txt" x="1130" y="204" text-anchor="middle">
+    Static site serves
+  </text>
+  <text class="txt" x="1130" y="230" text-anchor="middle">
+    Maintenance notice
+  </text>
+  <text class="txt" x="1130" y="256" text-anchor="middle">
+    Service recovers
+  </text>
 
-  <rect class="ok" x="120" y="430" width="340" height="180" rx="12"/>
-  <text class="step-title" x="290" y="470" text-anchor="middle">Automatic Behavior</text>
-  <text class="text" x="290" y="502" text-anchor="middle">Priority-based routing handles failures</text>
-  <text class="text" x="290" y="527" text-anchor="middle">without changing client URL.</text>
-  <text class="text" x="290" y="552" text-anchor="middle">Traffic manager probes every 30s.</text>
+  <path class="a1" d="M260 230 L285 230" />
+  <path class="a2" d="M505 230 L530 230" />
+  <path class="a2" d="M750 230 L775 230" />
+  <path class="a3" d="M995 230 L1020 230" />
 
-  <rect class="warn" x="510" y="430" width="340" height="180" rx="12"/>
-  <text class="step-title" x="680" y="470" text-anchor="middle">Manual DR Control</text>
-  <text class="text" x="680" y="502" text-anchor="middle">force_failover_to_secondary=true</text>
-  <text class="text" x="680" y="527" text-anchor="middle">promotes US to Priority 1.</text>
-  <text class="text" x="680" y="552" text-anchor="middle">Set false for planned failback.</text>
+  <rect class="step" x="90" y="390" width="350" height="280" />
+  <text class="head" x="265" y="432" text-anchor="middle">
+    Automatic Behavior
+  </text>
+  <text class="txt" x="265" y="468" text-anchor="middle">
+    Priority routing handles endpoint loss
+  </text>
+  <text class="txt" x="265" y="494" text-anchor="middle">
+    without changing client URL.
+  </text>
+  <text class="note" x="265" y="524" text-anchor="middle">
+    Probe interval and tolerance are configurable.
+  </text>
 
-  <rect class="dr" x="900" y="430" width="340" height="180" rx="12"/>
-  <text class="step-title" x="1070" y="470" text-anchor="middle">DR Artifacts</text>
-  <text class="text" x="1070" y="502" text-anchor="middle">RA-GRS storage keeps recovery assets</text>
-  <text class="text" x="1070" y="527" text-anchor="middle">in dr-backups container with retention.</text>
-  <text class="text" x="1070" y="552" text-anchor="middle">Supports restoration runbooks.</text>
+  <rect class="step" x="465" y="390" width="350" height="280" />
+  <text class="head" x="640" y="432" text-anchor="middle">
+    Manual DR Control
+  </text>
+  <text class="txt" x="640" y="468" text-anchor="middle">
+    Set force_failover_to_secondary = true
+  </text>
+  <text class="txt" x="640" y="494" text-anchor="middle">
+    to promote US to priority 1.
+  </text>
+  <text class="note" x="640" y="524" text-anchor="middle">
+    Set false to fail back after India recovers.
+  </text>
+
+  <rect class="step" x="840" y="390" width="350" height="280" />
+  <text class="head" x="1015" y="432" text-anchor="middle">DR Artifacts</text>
+  <text class="txt" x="1015" y="468" text-anchor="middle">
+    RA-GRS storage keeps recovery assets
+  </text>
+  <text class="txt" x="1015" y="494" text-anchor="middle">
+    in the private dr-backups container.
+  </text>
+  <text class="note" x="1015" y="524" text-anchor="middle">
+    Lifecycle retention controls storage growth.
+  </text>
 </svg>

@@ -34,12 +34,16 @@ variable "enable_ssh_access" {
 }
 
 variable "allowed_ssh_source_cidrs" {
-  description = "Source CIDRs allowed for SSH when enable_ssh_access is enabled."
+  description = "Source CIDRs allowed for SSH when SSH access is enabled."
   type        = list(string)
 
   validation {
-    condition     = var.enable_ssh_access ? length(var.allowed_ssh_source_cidrs) > 0 : true
-    error_message = "allowed_ssh_source_cidrs must contain at least one CIDR when enable_ssh_access is true."
+    condition = (
+      var.enable_ssh_access ? length(var.allowed_ssh_source_cidrs) > 0 : true
+    )
+    error_message = (
+      "allowed_ssh_source_cidrs must include at least one CIDR when enabled."
+    )
   }
 }
 

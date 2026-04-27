@@ -29,7 +29,7 @@ variable "endpoint_priorities" {
 }
 
 variable "enable_fallback_website" {
-  description = "Controls whether fallback endpoint is created in Traffic Manager."
+  description = "Controls whether a fallback endpoint is created in TM."
   type        = bool
 }
 

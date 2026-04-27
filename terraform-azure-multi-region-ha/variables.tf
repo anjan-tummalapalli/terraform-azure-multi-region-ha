@@ -4,8 +4,10 @@ variable "project_name" {
   default     = "azure-ha-demo"
 
   validation {
-    condition     = can(regex("^[a-z0-9-]{3,20}$", var.project_name))
-    error_message = "project_name must be 3-20 chars and contain only lowercase letters, numbers, and hyphens."
+    condition = can(regex("^[a-z0-9-]{3,20}$", var.project_name))
+    error_message = (
+      "project_name must be 3-20 chars with lowercase letters, nums, hyphens."
+    )
   }
 }
 
@@ -33,13 +35,16 @@ variable "aks_region_roles" {
   default     = ["primary", "secondary"]
 
   validation {
-    condition     = alltrue([for role in var.aks_region_roles : contains(["primary", "secondary"], role)])
-    error_message = "aks_region_roles can only contain 'primary' and/or 'secondary'."
+    condition = alltrue([
+      for role in var.aks_region_roles :
+      contains(["primary", "secondary"], role)
+    ])
+    error_message = "aks_region_roles may include only primary and secondary."
   }
 }
 
 variable "aks_kubernetes_version" {
-  description = "Optional AKS Kubernetes version. Set null to use Azure default latest supported version."
+  description = "Optional AKS version. Null uses Azure default version."
   type        = string
   default     = null
 }
@@ -113,7 +118,7 @@ variable "aks_service_cidrs" {
 }
 
 variable "aks_dns_service_ips" {
-  description = "AKS DNS service IP per region role. Must be inside corresponding aks_service_cidrs."
+  description = "AKS DNS service IP per role within matching service CIDR."
   type        = map(string)
   default = {
     primary   = "10.110.0.10"
@@ -122,7 +127,7 @@ variable "aks_dns_service_ips" {
 }
 
 variable "enable_aks_persistent_storage" {
-  description = "When true, creates Azure Files resources for AKS persistent volumes."
+  description = "When true, creates Azure Files for AKS persistent volumes."
   type        = bool
   default     = true
 }
@@ -133,8 +138,13 @@ variable "aks_persistent_storage_account_tier" {
   default     = "Standard"
 
   validation {
-    condition     = contains(["Standard", "Premium"], var.aks_persistent_storage_account_tier)
-    error_message = "aks_persistent_storage_account_tier must be Standard or Premium."
+    condition = contains(
+      ["Standard", "Premium"],
+      var.aks_persistent_storage_account_tier
+    )
+    error_message = (
+      "aks_persistent_storage_account_tier must be Standard/Premium."
+    )
   }
 }
 
@@ -158,8 +168,12 @@ variable "aks_persistent_file_share_name" {
   default     = "app-content"
 
   validation {
-    condition     = can(regex("^[a-z0-9-]{3,63}$", var.aks_persistent_file_share_name))
-    error_message = "aks_persistent_file_share_name must be 3-63 lowercase chars."
+    condition = can(
+      regex("^[a-z0-9-]{3,63}$", var.aks_persistent_file_share_name)
+    )
+    error_message = (
+      "aks_persistent_file_share_name must be 3-63 lowercase chars."
+    )
   }
 }
 
@@ -169,30 +183,36 @@ variable "aks_persistent_share_quota_gb" {
   default     = 32
 
   validation {
-    condition     = var.aks_persistent_share_quota_gb >= 5 && var.aks_persistent_share_quota_gb <= 5120
+    condition = (
+      var.aks_persistent_share_quota_gb >= 5 &&
+      var.aks_persistent_share_quota_gb <= 5120
+    )
     error_message = "aks_persistent_share_quota_gb must be between 5 and 5120."
   }
 }
 
 variable "force_failover_to_secondary" {
-  description = "When true, swaps Traffic Manager priorities so the US region becomes active."
+  description = "When true, US becomes active by swapping TM priorities."
   type        = bool
   default     = false
 }
 
 variable "enable_fallback_website" {
-  description = "When true, enables a static maintenance website as last-resort fallback endpoint."
+  description = "When true, enables static maintenance as last-resort fallback."
   type        = bool
   default     = true
 }
 
 variable "dr_data_retention_days" {
-  description = "Retention period (days) for DR artifacts in geo-redundant storage."
+  description = "Retention days for DR artifacts in geo-redundant storage."
   type        = number
   default     = 30
 
   validation {
-    condition     = var.dr_data_retention_days >= 7 && var.dr_data_retention_days <= 365
+    condition = (
+      var.dr_data_retention_days >= 7 &&
+      var.dr_data_retention_days <= 365
+    )
     error_message = "dr_data_retention_days must be between 7 and 365."
   }
 }
@@ -216,13 +236,13 @@ variable "regional_subnet_prefixes" {
 }
 
 variable "vm_instances_per_region" {
-  description = "Deprecated global instance count. Prefer primary_vm_instances/secondary_vm_instances."
+  description = "Deprecated global instance count. Prefer per-region vars."
   type        = number
   default     = 2
 }
 
 variable "vm_sku" {
-  description = "Deprecated global VM SKU. Prefer primary_vm_sku/secondary_vm_sku."
+  description = "Deprecated global VM SKU. Prefer per-region VM SKU vars."
   type        = string
   default     = "Standard_B2s"
 }
@@ -256,19 +276,19 @@ variable "primary_vm_sku" {
 }
 
 variable "secondary_vm_sku" {
-  description = "Secondary region VM SKU tuned for balanced resilience and cost."
+  description = "Secondary region VM SKU tuned for resilience and cost."
   type        = string
   default     = "Standard_B2s"
 }
 
 variable "enable_secondary_spot" {
-  description = "When true, secondary region VMSS uses Spot instances for additional savings (optional)."
+  description = "When true, secondary VMSS uses Spot for optional savings."
   type        = bool
   default     = false
 }
 
 variable "secondary_spot_max_bid_price" {
-  description = "Spot bid price for secondary VMSS (-1 means pay up to on-demand price cap)."
+  description = "Spot bid for secondary VMSS (-1 means on-demand price cap)."
   type        = number
   default     = -1
 }
@@ -280,7 +300,7 @@ variable "allowed_http_source_cidrs" {
 }
 
 variable "enable_ssh_access" {
-  description = "When true, creates SSH NSG rule(s) for controlled break-glass access."
+  description = "When true, creates SSH NSG rule(s) for break-glass access."
   type        = bool
   default     = false
 }
@@ -291,8 +311,12 @@ variable "allowed_ssh_source_cidrs" {
   default     = []
 
   validation {
-    condition     = var.enable_ssh_access ? length(var.allowed_ssh_source_cidrs) > 0 : true
-    error_message = "Provide at least one allowed_ssh_source_cidrs entry when enable_ssh_access is true."
+    condition = (
+      var.enable_ssh_access ? length(var.allowed_ssh_source_cidrs) > 0 : true
+    )
+    error_message = (
+      "Provide at least one allowed_ssh_source_cidrs entry when enabled."
+    )
   }
 }
 

@@ -4,8 +4,13 @@ output "cluster_name" {
 }
 
 output "kube_admin_config_command" {
-  description = "CLI helper command to fetch kubeconfig credentials for this cluster."
-  value       = "az aks get-credentials --resource-group ${azurerm_kubernetes_cluster.this.resource_group_name} --name ${azurerm_kubernetes_cluster.this.name} --overwrite-existing"
+  description = "CLI command to fetch kubeconfig credentials for this cluster."
+  value = join(" ", [
+    "az aks get-credentials",
+    "--resource-group ${azurerm_kubernetes_cluster.this.resource_group_name}",
+    "--name ${azurerm_kubernetes_cluster.this.name}",
+    "--overwrite-existing",
+  ])
 }
 
 output "cluster_id" {

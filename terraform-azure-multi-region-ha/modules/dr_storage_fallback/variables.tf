@@ -1,5 +1,5 @@
 variable "storage_account_name" {
-  description = "Globally unique storage account name for DR and fallback assets."
+  description = "Globally unique storage account name for DR and fallback."
   type        = string
 }
 

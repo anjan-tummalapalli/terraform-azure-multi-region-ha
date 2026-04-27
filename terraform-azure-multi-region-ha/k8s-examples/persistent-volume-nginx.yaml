@@ -34,7 +34,11 @@ spec:
       initContainers:
         - name: init-content
           image: busybox:1.36
-          command: ["sh", "-c", "echo \"Persistent content created on $(date)\" > /data/index.html"]
+          command:
+            - sh
+            - -c
+            - >-
+              echo "Persistent content created on $(date)" > /data/index.html
           volumeMounts:
             - name: web-content
               mountPath: /data

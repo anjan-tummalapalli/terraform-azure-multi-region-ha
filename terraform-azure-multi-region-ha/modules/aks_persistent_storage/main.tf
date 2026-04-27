@@ -3,7 +3,12 @@ locals {
   region_suffix           = var.region_key == "primary" ? "pri" : "sec"
   storage_account_name = lower(
     substr(
-      "stpv${local.normalized_project_name}${local.region_suffix}${var.unique_suffix}",
+      format(
+        "stpv%s%s%s",
+        local.normalized_project_name,
+        local.region_suffix,
+        var.unique_suffix
+      ),
       0,
       24
     )
@@ -31,7 +36,7 @@ resource "azurerm_storage_account" "this" {
     virtual_network_subnet_ids = [var.subnet_id]
   }
 
-  # Keeps object-level versioning enabled for basic accidental-delete resilience.
+  # Keeps object-level versioning for accidental-delete resilience.
   blob_properties {
     versioning_enabled = true
   }
@@ -42,8 +47,7 @@ resource "azurerm_storage_account" "this" {
   })
 }
 
-# Creates the Azure Files share that is mounted into Kubernetes pods as PVC-backed
-# storage.
+# Creates the Azure Files share mounted into pods as PVC-backed storage.
 resource "azurerm_storage_share" "this" {
   name                 = var.file_share_name
   storage_account_name = azurerm_storage_account.this.name

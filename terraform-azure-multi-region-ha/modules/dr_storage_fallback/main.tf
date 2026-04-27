@@ -1,4 +1,4 @@
-# Creates geo-redundant storage used for DR artifacts and fallback website hosting.
+# Creates geo-redundant storage for DR artifacts and fallback website hosting.
 resource "azurerm_storage_account" "this" {
   name                            = var.storage_account_name
   resource_group_name             = var.resource_group_name
@@ -50,7 +50,9 @@ resource "azurerm_storage_management_policy" "dr_retention" {
 
     actions {
       base_blob {
-        delete_after_days_since_modification_greater_than = var.dr_data_retention_days
+        delete_after_days_since_modification_greater_than = (
+          var.dr_data_retention_days
+        )
       }
     }
   }

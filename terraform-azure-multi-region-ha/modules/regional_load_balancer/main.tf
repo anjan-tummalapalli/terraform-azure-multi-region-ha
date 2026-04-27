@@ -5,8 +5,10 @@ resource "azurerm_public_ip" "this" {
   resource_group_name = var.resource_group_name
   allocation_method   = "Static"
   sku                 = "Standard"
-  domain_name_label   = "${var.project_name}-${var.region_key}-${var.unique_suffix}"
-  tags                = merge(var.common_tags, { region_role = var.region_key })
+  domain_name_label = (
+    "${var.project_name}-${var.region_key}-${var.unique_suffix}"
+  )
+  tags = merge(var.common_tags, { region_role = var.region_key })
 }
 
 # Creates a regional public load balancer for instance-level HA.
