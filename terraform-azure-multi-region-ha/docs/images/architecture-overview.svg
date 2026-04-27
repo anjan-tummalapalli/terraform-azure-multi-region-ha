@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760" role="img" aria-labelledby="title desc">
+  <title id="title">Azure Multi-Region High Availability Architecture</title>
+  <desc id="desc">Traffic Manager directs traffic to Central India as primary and East US 2 as fallback.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f4f8fb; }
+      .title { font: 700 28px Arial, sans-serif; fill: #102a43; }
+      .subtitle { font: 500 16px Arial, sans-serif; fill: #334e68; }
+      .box-title { font: 700 18px Arial, sans-serif; fill: #102a43; }
+      .box-text { font: 500 14px Arial, sans-serif; fill: #243b53; }
+      .label { font: 700 14px Arial, sans-serif; fill: #102a43; }
+      .small { font: 500 12px Arial, sans-serif; fill: #486581; }
+      .primary { fill: #d9f2e5; stroke: #2f855a; stroke-width: 2; }
+      .secondary { fill: #e6efff; stroke: #2b6cb0; stroke-width: 2; }
+      .infra { fill: #ffffff; stroke: #9fb3c8; stroke-width: 1.5; }
+      .global { fill: #fff7d6; stroke: #c05621; stroke-width: 2; }
+      .client { fill: #f0e5ff; stroke: #6b46c1; stroke-width: 2; }
+      .arrow-primary { stroke: #2f855a; stroke-width: 3; fill: none; marker-end: url(#arrow-primary); }
+      .arrow-secondary { stroke: #2b6cb0; stroke-width: 3; fill: none; marker-end: url(#arrow-secondary); }
+      .arrow-global { stroke: #c05621; stroke-width: 3; fill: none; marker-end: url(#arrow-global); }
+      .dash { stroke-dasharray: 8 6; }
+    </style>
+    <marker id="arrow-primary" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#2f855a"/>
+    </marker>
+    <marker id="arrow-secondary" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#2b6cb0"/>
+    </marker>
+    <marker id="arrow-global" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#c05621"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1280" height="760" rx="0" />
+
+  <text class="title" x="640" y="48" text-anchor="middle">Azure Multi-Region HA Terraform Architecture</text>
+  <text class="subtitle" x="640" y="76" text-anchor="middle">Primary: Central India | Secondary: East US 2 | Global Failover via Traffic Manager (Priority)</text>
+
+  <rect class="client" x="525" y="110" width="230" height="70" rx="12"/>
+  <text class="box-title" x="640" y="148" text-anchor="middle">Client Requests</text>
+
+  <rect class="global" x="425" y="235" width="430" height="110" rx="14"/>
+  <text class="box-title" x="640" y="275" text-anchor="middle">Azure Traffic Manager</text>
+  <text class="box-text" x="640" y="302" text-anchor="middle">Routing Method: Priority</text>
+  <text class="small" x="640" y="325" text-anchor="middle">Health probe: HTTP / on port 80</text>
+
+  <path class="arrow-global" d="M640 180 L640 235" />
+
+  <rect class="primary" x="90" y="390" width="500" height="300" rx="16"/>
+  <text class="box-title" x="340" y="425" text-anchor="middle">Primary Region: Central India (Priority 1)</text>
+
+  <rect class="infra" x="130" y="450" width="420" height="58" rx="8"/>
+  <text class="box-text" x="340" y="485" text-anchor="middle">Resource Group + VNet + App Subnet + NSG</text>
+
+  <rect class="infra" x="130" y="523" width="420" height="58" rx="8"/>
+  <text class="box-text" x="340" y="558" text-anchor="middle">Standard Public Load Balancer (HTTP rule + probe)</text>
+
+  <rect class="infra" x="130" y="596" width="420" height="58" rx="8"/>
+  <text class="box-text" x="340" y="631" text-anchor="middle">Linux VM Scale Set (2+ instances, zone resilient)</text>
+
+  <rect class="secondary" x="690" y="390" width="500" height="300" rx="16"/>
+  <text class="box-title" x="940" y="425" text-anchor="middle">Failover Region: East US 2 (Priority 2)</text>
+
+  <rect class="infra" x="730" y="450" width="420" height="58" rx="8"/>
+  <text class="box-text" x="940" y="485" text-anchor="middle">Resource Group + VNet + App Subnet + NSG</text>
+
+  <rect class="infra" x="730" y="523" width="420" height="58" rx="8"/>
+  <text class="box-text" x="940" y="558" text-anchor="middle">Standard Public Load Balancer (HTTP rule + probe)</text>
+
+  <rect class="infra" x="730" y="596" width="420" height="58" rx="8"/>
+  <text class="box-text" x="940" y="631" text-anchor="middle">Linux VM Scale Set (2+ instances, standby)</text>
+
+  <path class="arrow-primary" d="M560 345 C510 365, 445 380, 390 390"/>
+  <path class="arrow-secondary dash" d="M720 345 C770 365, 835 380, 890 390"/>
+
+  <text class="label" x="430" y="375" text-anchor="middle">Active path</text>
+  <text class="label" x="860" y="375" text-anchor="middle">Failover path</text>
+</svg>

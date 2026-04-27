@@ -13,14 +13,20 @@ Traffic Manager sends traffic to India by default and automatically fails over t
 
 ## Architecture
 
-```text
-Clients
-  |
-  v
-Azure Traffic Manager (Priority)
-  |-- Priority 1 -> Central India Public LB -> VM Scale Set (>=2 instances)
-  |-- Priority 2 -> East US 2 Public LB   -> VM Scale Set (>=2 instances)
+![Azure multi-region architecture](docs/images/architecture-overview.svg)
+
+### Architecture Diagram (Mermaid)
+
+```mermaid
+flowchart TD
+    C["Clients"] --> TM["Azure Traffic Manager (Priority Routing)"]
+    TM -->|Priority 1| IN["Central India<br/>Public LB + VMSS (2+)"]
+    TM -->|Priority 2| US["East US 2<br/>Public LB + VMSS (2+)"]
 ```
+
+## Failover Flow (Visual)
+
+![Traffic Manager failover flow](docs/images/failover-flow.svg)
 
 ## Files
 
@@ -30,6 +36,8 @@ Azure Traffic Manager (Priority)
 - `outputs.tf` - Useful output values (global FQDN, regional endpoints).
 - `terraform.tfvars.example` - Example variable file.
 - `scripts/cloud-init.sh` - Bootstraps Nginx and prints region identity.
+- `docs/images/architecture-overview.svg` - High-level architecture visual.
+- `docs/images/failover-flow.svg` - Step-by-step failover visual.
 
 ## Prerequisites
 
