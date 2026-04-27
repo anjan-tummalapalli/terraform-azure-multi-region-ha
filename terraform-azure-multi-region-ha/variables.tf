@@ -21,6 +21,106 @@ variable "secondary_location" {
   default     = "East US 2"
 }
 
+variable "enable_aks" {
+  description = "When true, deploys AKS clusters in selected region roles."
+  type        = bool
+  default     = true
+}
+
+variable "aks_region_roles" {
+  description = "Region roles where AKS should be deployed."
+  type        = list(string)
+  default     = ["primary"]
+
+  validation {
+    condition     = alltrue([for role in var.aks_region_roles : contains(["primary", "secondary"], role)])
+    error_message = "aks_region_roles can only contain 'primary' and/or 'secondary'."
+  }
+}
+
+variable "aks_kubernetes_version" {
+  description = "Optional AKS Kubernetes version. Set null to use Azure default latest supported version."
+  type        = string
+  default     = null
+}
+
+variable "aks_private_cluster_enabled" {
+  description = "When true, deploys AKS private clusters."
+  type        = bool
+  default     = false
+}
+
+variable "aks_sku_tier" {
+  description = "AKS control plane SKU tier (Free or Standard)."
+  type        = string
+  default     = "Free"
+
+  validation {
+    condition     = contains(["Free", "Standard"], var.aks_sku_tier)
+    error_message = "aks_sku_tier must be either 'Free' or 'Standard'."
+  }
+}
+
+variable "aks_node_counts" {
+  description = "AKS node count per region role."
+  type        = map(number)
+  default = {
+    primary   = 2
+    secondary = 1
+  }
+}
+
+variable "aks_node_vm_sizes" {
+  description = "AKS node VM size per region role."
+  type        = map(string)
+  default = {
+    primary   = "Standard_B2s"
+    secondary = "Standard_B2s"
+  }
+}
+
+variable "aks_enable_cluster_autoscaler" {
+  description = "Enables AKS node pool autoscaler."
+  type        = bool
+  default     = true
+}
+
+variable "aks_node_min_counts" {
+  description = "AKS node pool autoscaler minimum node count per region role."
+  type        = map(number)
+  default = {
+    primary   = 1
+    secondary = 1
+  }
+}
+
+variable "aks_node_max_counts" {
+  description = "AKS node pool autoscaler maximum node count per region role."
+  type        = map(number)
+  default = {
+    primary   = 4
+    secondary = 2
+  }
+}
+
+variable "aks_service_cidrs" {
+  description = "AKS service CIDR per region role."
+  type        = map(string)
+  default = {
+    primary   = "10.110.0.0/16"
+    secondary = "10.120.0.0/16"
+  }
+}
+
+variable "aks_dns_service_ips" {
+  description = "AKS DNS service IP per region role. Must be inside corresponding aks_service_cidrs."
+  type        = map(string)
+  default = {
+    primary   = "10.110.0.10"
+    secondary = "10.120.0.10"
+  }
+}
+
 variable "force_failover_to_secondary" {
   description = "When true, swaps Traffic Manager priorities so the US region becomes active."
   type        = bool

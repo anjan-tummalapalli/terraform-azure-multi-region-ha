@@ -32,6 +32,22 @@ output "regional_vmss_names" {
   }
 }
 
+output "aks_cluster_names" {
+  description = "AKS cluster names by region role (only for enabled AKS regions)."
+  value = {
+    for key, aks in module.aks_kubernetes :
+    key => aks.cluster_name
+  }
+}
+
+output "aks_kubeconfig_commands" {
+  description = "CLI helper commands to fetch kubeconfig for each AKS cluster."
+  value = {
+    for key, aks in module.aks_kubernetes :
+    key => aks.kube_admin_config_command
+  }
+}
+
 output "regional_compute_cost_profile" {
   description = "Effective cost profile for regional compute sizing and Spot usage."
   value = {

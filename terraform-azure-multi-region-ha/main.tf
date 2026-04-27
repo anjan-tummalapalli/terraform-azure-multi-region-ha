@@ -46,6 +46,12 @@ locals {
     }
   }
 
+  # AKS region selection allows cost-aware deployments (primary-only by default).
+  aks_regions = var.enable_aks ? {
+    for key, region in local.regions :
+    key => region if contains(var.aks_region_roles, key)
+  } : {}
+
   fallback_index_html = <<-HTML
     <!doctype html>
     <html>
@@ -119,6 +125,32 @@ module "regional_compute" {
     role   = each.key
   }))
   common_tags = local.common_tags
+}
+
+# Builds AKS clusters in selected regions for Kubernetes workloads.
+module "aks_kubernetes" {
+  for_each = local.aks_regions
+
+  source = "./modules/aks_kubernetes"
+
+  region_key                = each.key
+  base_name                 = local.base_name
+  project_name              = var.project_name
+  unique_suffix             = random_string.suffix.result
+  location                  = module.regional_foundation[each.key].location
+  resource_group_name       = module.regional_foundation[each.key].resource_group_name
+  subnet_id                 = module.regional_foundation[each.key].subnet_id
+  kubernetes_version        = var.aks_kubernetes_version
+  private_cluster_enabled   = var.aks_private_cluster_enabled
+  sku_tier                  = var.aks_sku_tier
+  node_count                = var.aks_node_counts[each.key]
+  node_vm_size              = var.aks_node_vm_sizes[each.key]
+  enable_cluster_autoscaler = var.aks_enable_cluster_autoscaler
+  node_min_count            = var.aks_node_min_counts[each.key]
+  node_max_count            = var.aks_node_max_counts[each.key]
+  service_cidr              = var.aks_service_cidrs[each.key]
+  dns_service_ip            = var.aks_dns_service_ips[each.key]
+  common_tags               = local.common_tags
 }
 
 # Builds geo-redundant DR storage and optional static fallback website.

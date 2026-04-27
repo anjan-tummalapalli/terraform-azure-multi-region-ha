@@ -6,6 +6,7 @@ This Terraform project deploys a resilient Azure architecture with:
 - **Global routing:** Azure Traffic Manager (Priority mode)
 - **Disaster recovery storage:** RA-GRS Storage Account for DR artifacts
 - **Last-resort fallback:** Static maintenance website endpoint
+- **Kubernetes platform:** AKS module (primary enabled by default, secondary optional)
 
 ## What Is Implemented
 
@@ -38,6 +39,11 @@ This Terraform project deploys a resilient Azure architecture with:
 - VM Scale Sets enforce SSH key auth and use System Assigned Managed Identity.
 - DR storage uses TLS 1.2+, private backup container, and lifecycle retention.
 
+7. Kubernetes module support
+- AKS clusters are deployed through a dedicated module (`modules/aks_kubernetes`).
+- Default configuration deploys AKS in primary region only for cost efficiency.
+- Secondary AKS can be enabled for active-active Kubernetes patterns.
+
 ## Architecture
 
 ![Azure multi-region architecture with DR and fallback](docs/images/architecture-overview.svg)
@@ -47,8 +53,8 @@ This Terraform project deploys a resilient Azure architecture with:
 ```mermaid
 flowchart TD
     C["Clients"] --> TM["Azure Traffic Manager (Priority)"]
-    TM -->|Priority 1 default| IN["Central India: LB + VMSS"]
-    TM -->|Priority 2 default| US["East US 2: LB + VMSS"]
+    TM -->|Priority 1 default| IN["Central India: LB + VMSS + AKS (default)"]
+    TM -->|Priority 2 default| US["East US 2: LB + VMSS (+ optional AKS)"]
     TM -->|Priority 3| FB["Fallback Static Website"]
 
     DR["RA-GRS DR Storage\n- dr-backups container\n- versioning + retention"] --> FB
@@ -68,12 +74,14 @@ flowchart TD
 - `scripts/cloud-init.sh` - Bootstraps Nginx for health endpoint.
 - `docs/images/architecture-overview.svg` - Architecture visual.
 - `docs/images/failover-flow.svg` - Failover/fallback flow visual.
+- `docs/images/aks-operations-flow.svg` - AKS deployment and access workflow visual.
 
 ## Module Layout
 
 - `modules/regional_foundation` - Resource Group, VNet, Subnet, NSG, and subnet association.
 - `modules/regional_load_balancer` - Public IP, Load Balancer, backend pool, probe, and rule.
 - `modules/regional_compute` - Linux VM Scale Set attached to regional backend pool.
+- `modules/aks_kubernetes` - AKS cluster per selected region with secure defaults.
 - `modules/dr_storage_fallback` - RA-GRS storage, DR backup container, lifecycle policy, fallback static pages.
 - `modules/global_traffic_manager` - Traffic Manager profile, regional endpoints, fallback endpoint.
 
@@ -87,6 +95,10 @@ flowchart TD
 - `enable_secondary_spot` / `secondary_spot_max_bid_price`: standby Spot optimization controls.
 - `allowed_http_source_cidrs`: explicit HTTP source CIDR allowlist.
 - `enable_ssh_access` / `allowed_ssh_source_cidrs`: break-glass SSH controls.
+- `enable_aks` / `aks_region_roles`: AKS enablement and region selection.
+- `aks_node_counts` / `aks_node_vm_sizes`: AKS sizing controls.
+- `aks_enable_cluster_autoscaler`, `aks_node_min_counts`, `aks_node_max_counts`: AKS scaling controls.
+- `aks_private_cluster_enabled`, `aks_sku_tier`: AKS security/cost posture controls.
 
 ## Security Principles
 
@@ -114,7 +126,9 @@ flowchart TD
 
 - Terraform `>= 1.5`
 - Azure CLI
+- `kubectl` (for cluster operations)
 - Azure subscription with permissions for network/compute/storage
+- Azure permissions to create AKS clusters and node pools
 - SSH public key for VMSS Linux login
 
 ## Quick Start
@@ -148,6 +162,53 @@ terraform apply
 terraform output traffic_manager_fqdn
 terraform output traffic_manager_endpoint_priorities
 terraform output fallback_website_url
+terraform output aks_cluster_names
+terraform output aks_kubeconfig_commands
+```
+
+## Kubernetes (AKS) Instructions
+
+![AKS deployment and operations flow](docs/images/aks-operations-flow.svg)
+
+### A) Deploy AKS in primary only (default)
+
+1. Keep `enable_aks = true`.
+2. Keep `aks_region_roles = ["primary"]`.
+3. Run `terraform apply`.
+4. Run command from `terraform output aks_kubeconfig_commands`.
+5. Verify cluster access:
+
+```bash
+kubectl get nodes
+```
+
+### B) Enable AKS in both primary and secondary
+
+1. Update `aks_region_roles = ["primary", "secondary"]`.
+2. Optionally tune `aks_node_counts` and autoscaler limits per region.
+3. Run `terraform apply`.
+4. Fetch kubeconfig for each region from `aks_kubeconfig_commands` output.
+
+### C) Deploy a quick test workload
+
+```bash
+kubectl create deployment demo-nginx --image=nginx
+kubectl expose deployment demo-nginx --port=80 --type=ClusterIP
+kubectl get pods -o wide
+kubectl get svc demo-nginx
+```
+
+### D) Recommended AKS baseline settings
+
+```hcl
+enable_aks                    = true
+aks_region_roles              = ["primary"]
+aks_sku_tier                  = "Free"
+aks_private_cluster_enabled   = false
+aks_enable_cluster_autoscaler = true
+aks_node_counts               = { primary = 2, secondary = 1 }
+aks_node_min_counts           = { primary = 1, secondary = 1 }
+aks_node_max_counts           = { primary = 4, secondary = 2 }
 ```
 
 ## Proper DR and Fallback Operation Steps

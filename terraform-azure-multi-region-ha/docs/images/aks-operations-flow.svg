@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="760" viewBox="0 0 1360 760" role="img" aria-labelledby="title desc">
+  <title id="title">AKS Deployment and Access Flow</title>
+  <desc id="desc">Operational flow for enabling AKS in Terraform, applying, fetching kubeconfig, and deploying workloads.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f8fafc; }
+      .title { font: 700 30px Arial, sans-serif; fill: #102a43; }
+      .subtitle { font: 500 16px Arial, sans-serif; fill: #334e68; }
+      .step { fill: #ffffff; stroke: #9fb3c8; stroke-width: 2; }
+      .step-title { font: 700 17px Arial, sans-serif; fill: #102a43; }
+      .text { font: 500 14px Arial, sans-serif; fill: #243b53; }
+      .hint { fill: #e0f2fe; stroke: #0369a1; stroke-width: 2; }
+      .note { fill: #dcfce7; stroke: #15803d; stroke-width: 2; }
+      .arrow { stroke: #486581; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#486581"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1360" height="760"/>
+  <text class="title" x="680" y="54" text-anchor="middle">AKS Module Deployment and Access Workflow</text>
+  <text class="subtitle" x="680" y="82" text-anchor="middle">Use this flow to enable AKS, deploy clusters, and start workload operations.</text>
+
+  <rect class="step" x="70" y="190" width="240" height="170" rx="14"/>
+  <text class="step-title" x="190" y="230" text-anchor="middle">1. Enable AKS</text>
+  <text class="text" x="190" y="262" text-anchor="middle">Set enable_aks = true</text>
+  <text class="text" x="190" y="287" text-anchor="middle">Choose aks_region_roles</text>
+  <text class="text" x="190" y="312" text-anchor="middle">(primary default)</text>
+
+  <rect class="step" x="340" y="190" width="240" height="170" rx="14"/>
+  <text class="step-title" x="460" y="230" text-anchor="middle">2. Size Node Pools</text>
+  <text class="text" x="460" y="262" text-anchor="middle">Set aks_node_counts</text>
+  <text class="text" x="460" y="287" text-anchor="middle">Set aks_node_vm_sizes</text>
+  <text class="text" x="460" y="312" text-anchor="middle">Tune autoscaler min/max</text>
+
+  <rect class="step" x="610" y="190" width="240" height="170" rx="14"/>
+  <text class="step-title" x="730" y="230" text-anchor="middle">3. Deploy Stack</text>
+  <text class="text" x="730" y="262" text-anchor="middle">terraform init</text>
+  <text class="text" x="730" y="287" text-anchor="middle">terraform plan</text>
+  <text class="text" x="730" y="312" text-anchor="middle">terraform apply</text>
+
+  <rect class="step" x="880" y="190" width="240" height="170" rx="14"/>
+  <text class="step-title" x="1000" y="230" text-anchor="middle">4. Fetch Kubeconfig</text>
+  <text class="text" x="1000" y="262" text-anchor="middle">Read output:</text>
+  <text class="text" x="1000" y="287" text-anchor="middle">aks_kubeconfig_commands</text>
+  <text class="text" x="1000" y="312" text-anchor="middle">Run returned command</text>
+
+  <rect class="step" x="1150" y="190" width="160" height="170" rx="14"/>
+  <text class="step-title" x="1230" y="230" text-anchor="middle">5. Operate</text>
+  <text class="text" x="1230" y="262" text-anchor="middle">kubectl get nodes</text>
+  <text class="text" x="1230" y="287" text-anchor="middle">Deploy app</text>
+  <text class="text" x="1230" y="312" text-anchor="middle">Scale/monitor</text>
+
+  <path class="arrow" d="M310 275 L340 275"/>
+  <path class="arrow" d="M580 275 L610 275"/>
+  <path class="arrow" d="M850 275 L880 275"/>
+  <path class="arrow" d="M1120 275 L1150 275"/>
+
+  <rect class="hint" x="140" y="450" width="500" height="210" rx="14"/>
+  <text class="step-title" x="390" y="492" text-anchor="middle">Security and Networking Hints</text>
+  <text class="text" x="390" y="526" text-anchor="middle">Use private AKS for restricted environments</text>
+  <text class="text" x="390" y="552" text-anchor="middle">Pin allowed_http_source_cidrs to trusted ranges</text>
+  <text class="text" x="390" y="578" text-anchor="middle">Keep SSH disabled unless break-glass is required</text>
+  <text class="text" x="390" y="604" text-anchor="middle">Use managed identity and Azure RBAC for workloads</text>
+
+  <rect class="note" x="700" y="450" width="520" height="210" rx="14"/>
+  <text class="step-title" x="960" y="492" text-anchor="middle">Cost-Aware AKS Guidance</text>
+  <text class="text" x="960" y="526" text-anchor="middle">Primary-only AKS is the default (lowest baseline cost)</text>
+  <text class="text" x="960" y="552" text-anchor="middle">Add secondary AKS only for active-active K8s strategy</text>
+  <text class="text" x="960" y="578" text-anchor="middle">Use autoscaler and right-size node pools from real load</text>
+  <text class="text" x="960" y="604" text-anchor="middle">Keep control plane tier Free unless Standard is required</text>
+</svg>
