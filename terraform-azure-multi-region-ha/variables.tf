@@ -120,6 +120,29 @@ variable "secondary_spot_max_bid_price" {
   default     = -1
 }
 
+variable "allowed_http_source_cidrs" {
+  description = "Source CIDRs allowed to reach application HTTP endpoint."
+  type        = list(string)
+  default     = ["*"]
+}
+
+variable "enable_ssh_access" {
+  description = "When true, creates SSH NSG rule(s) for controlled break-glass access."
+  type        = bool
+  default     = false
+}
+
+variable "allowed_ssh_source_cidrs" {
+  description = "Source CIDRs allowed for SSH when enable_ssh_access is true."
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition     = var.enable_ssh_access ? length(var.allowed_ssh_source_cidrs) > 0 : true
+    error_message = "Provide at least one allowed_ssh_source_cidrs entry when enable_ssh_access is true."
+  }
+}
+
 variable "vm_admin_username" {
   description = "Admin username for VM Scale Set instances."
   type        = string

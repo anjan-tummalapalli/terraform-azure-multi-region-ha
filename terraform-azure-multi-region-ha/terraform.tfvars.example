@@ -17,6 +17,13 @@ enable_secondary_spot      = true
 secondary_spot_max_bid_price = -1
 vm_admin_username          = "azureuser"
 
+# Security-first defaults:
+# - HTTP is open publicly by default for internet-facing apps.
+# - SSH is disabled by default; enable only for temporary break-glass.
+allowed_http_source_cidrs = ["*"]
+enable_ssh_access         = false
+allowed_ssh_source_cidrs  = []
+
 # Example: ssh_public_key = "ssh-rsa AAAAB3Nza... user@host"
 ssh_public_key = "REPLACE_WITH_YOUR_SSH_PUBLIC_KEY"
 

@@ -16,6 +16,8 @@ resource "azurerm_linux_virtual_machine_scale_set" "this" {
   eviction_policy = var.use_spot ? "Deallocate" : null
   # Bid cap for Spot instances; -1 means up to on-demand price.
   max_bid_price = var.use_spot ? var.spot_max_bid_price : null
+  # Enforces key-based authentication only.
+  disable_password_authentication = true
 
   source_image_reference {
     publisher = "Canonical"
@@ -32,6 +34,11 @@ resource "azurerm_linux_virtual_machine_scale_set" "this" {
   admin_ssh_key {
     username   = var.admin_username
     public_key = var.ssh_public_key
+  }
+
+  # Enables Managed Identity so workloads can use Azure RBAC without embedded secrets.
+  identity {
+    type = "SystemAssigned"
   }
 
   custom_data = var.custom_data_base64

@@ -32,6 +32,12 @@ This Terraform project deploys a resilient Azure architecture with:
 - Secondary runs `1 x Standard_B1ms` by default.
 - Secondary supports Spot mode (`enable_secondary_spot = true`) to lower standby cost further.
 
+6. Security-first baseline controls
+- SSH access is disabled by default (`enable_ssh_access = false`).
+- NSG ingress rules are CIDR-allowlist based for HTTP and SSH.
+- VM Scale Sets enforce SSH key auth and use System Assigned Managed Identity.
+- DR storage uses TLS 1.2+, private backup container, and lifecycle retention.
+
 ## Architecture
 
 ![Azure multi-region architecture with DR and fallback](docs/images/architecture-overview.svg)
@@ -79,6 +85,30 @@ flowchart TD
 - `primary_vm_instances` / `secondary_vm_instances`: region-specific sizing.
 - `primary_vm_sku` / `secondary_vm_sku`: region-specific VM SKUs.
 - `enable_secondary_spot` / `secondary_spot_max_bid_price`: standby Spot optimization controls.
+- `allowed_http_source_cidrs`: explicit HTTP source CIDR allowlist.
+- `enable_ssh_access` / `allowed_ssh_source_cidrs`: break-glass SSH controls.
+
+## Security Principles
+
+1. Least privilege by default
+- Keep SSH disabled unless an incident requires break-glass access.
+- Restrict HTTP and SSH to known CIDR ranges whenever possible.
+
+2. Identity over secrets
+- Use System Assigned Managed Identity on VMSS workloads.
+- Prefer Azure RBAC and managed identities over static credentials in code.
+
+3. Defense in depth
+- Use regional isolation, NSGs, load balancer probes, and Traffic Manager failover.
+- Keep fallback endpoint limited to maintenance experience, not privileged functions.
+
+4. Data protection and retention discipline
+- Store DR artifacts in private blob container with versioning and retention controls.
+- Tune retention (`dr_data_retention_days`) to compliance minimum needed.
+
+5. Controlled emergency access
+- Enable SSH temporarily for approved source CIDRs only.
+- Revert `enable_ssh_access = false` after maintenance.
 
 ## Prerequisites
 
@@ -179,6 +209,14 @@ primary_vm_sku               = "Standard_B2s"
 secondary_vm_sku             = "Standard_B1ms"
 enable_secondary_spot        = true
 secondary_spot_max_bid_price = -1
+```
+
+### Security-First Recommended Settings
+
+```hcl
+allowed_http_source_cidrs = ["203.0.113.0/24"] # replace with your trusted ingress range(s)
+enable_ssh_access         = false
+allowed_ssh_source_cidrs  = []
 ```
 
 ## Cleanup

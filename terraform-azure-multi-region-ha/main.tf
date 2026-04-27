@@ -69,12 +69,15 @@ module "regional_foundation" {
 
   source = "./modules/regional_foundation"
 
-  region_key    = each.key
-  base_name     = local.base_name
-  location      = each.value.location
-  address_space = var.regional_address_spaces[each.key]
-  subnet_prefix = var.regional_subnet_prefixes[each.key]
-  common_tags   = local.common_tags
+  region_key                = each.key
+  base_name                 = local.base_name
+  location                  = each.value.location
+  address_space             = var.regional_address_spaces[each.key]
+  subnet_prefix             = var.regional_subnet_prefixes[each.key]
+  allowed_http_source_cidrs = var.allowed_http_source_cidrs
+  enable_ssh_access         = var.enable_ssh_access
+  allowed_ssh_source_cidrs  = var.allowed_ssh_source_cidrs
+  common_tags               = local.common_tags
 }
 
 # Builds per-region load-balancer stack (Public IP, LB, backend pool, probe, rule).

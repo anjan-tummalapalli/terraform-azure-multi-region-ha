@@ -23,6 +23,26 @@ variable "subnet_prefix" {
   type        = string
 }
 
+variable "allowed_http_source_cidrs" {
+  description = "Source CIDRs allowed to reach HTTP application endpoint."
+  type        = list(string)
+}
+
+variable "enable_ssh_access" {
+  description = "When true, creates SSH NSG rule(s) for break-glass access."
+  type        = bool
+}
+
+variable "allowed_ssh_source_cidrs" {
+  description = "Source CIDRs allowed for SSH when enable_ssh_access is enabled."
+  type        = list(string)
+
+  validation {
+    condition     = var.enable_ssh_access ? length(var.allowed_ssh_source_cidrs) > 0 : true
+    error_message = "allowed_ssh_source_cidrs must contain at least one CIDR when enable_ssh_access is true."
+  }
+}
+
 variable "common_tags" {
   description = "Common tags merged into all resources."
   type        = map(string)

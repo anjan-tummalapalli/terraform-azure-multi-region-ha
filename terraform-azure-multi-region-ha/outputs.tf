@@ -48,6 +48,15 @@ output "regional_compute_cost_profile" {
   }
 }
 
+output "security_configuration" {
+  description = "Effective baseline security controls for ingress and SSH posture."
+  value = {
+    allowed_http_source_cidrs = var.allowed_http_source_cidrs
+    enable_ssh_access         = var.enable_ssh_access
+    allowed_ssh_source_cidrs  = var.allowed_ssh_source_cidrs
+  }
+}
+
 output "dr_storage_account_name" {
   description = "Geo-redundant storage account used for DR artifacts and fallback static site."
   value       = module.dr_storage_fallback.storage_account_name
