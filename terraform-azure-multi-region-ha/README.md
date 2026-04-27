@@ -51,12 +51,20 @@ flowchart TD
 
 - `versions.tf` - Terraform and provider versions.
 - `variables.tf` - Input variables and DR/fallback toggles.
-- `main.tf` - Core HA, DR, and fallback resources with inline comments.
-- `outputs.tf` - Endpoint, DR, and VMSS outputs.
+- `main.tf` - Root orchestration that imports all Azure service modules.
+- `outputs.tf` - Aggregated endpoint, DR, and VMSS outputs.
 - `terraform.tfvars.example` - Sample variable file.
 - `scripts/cloud-init.sh` - Bootstraps Nginx for health endpoint.
 - `docs/images/architecture-overview.svg` - Architecture visual.
 - `docs/images/failover-flow.svg` - Failover/fallback flow visual.
+
+## Module Layout
+
+- `modules/regional_foundation` - Resource Group, VNet, Subnet, NSG, and subnet association.
+- `modules/regional_load_balancer` - Public IP, Load Balancer, backend pool, probe, and rule.
+- `modules/regional_compute` - Linux VM Scale Set attached to regional backend pool.
+- `modules/dr_storage_fallback` - RA-GRS storage, DR backup container, lifecycle policy, fallback static pages.
+- `modules/global_traffic_manager` - Traffic Manager profile, regional endpoints, fallback endpoint.
 
 ## Key Variables
 
