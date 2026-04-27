@@ -1,0 +1,16 @@
+# Copy this file to terraform.tfvars and replace placeholder values.
+project_name       = "azure-ha-demo"
+primary_location   = "Central India"
+secondary_location = "East US 2"
+
+vm_instances_per_region = 2
+vm_sku                  = "Standard_B2s"
+vm_admin_username       = "azureuser"
+
+# Example: ssh_public_key = "ssh-rsa AAAAB3Nza... user@host"
+ssh_public_key = "REPLACE_WITH_YOUR_SSH_PUBLIC_KEY"
+
+tags = {
+  environment = "production"
+  owner       = "platform-team"
+}
