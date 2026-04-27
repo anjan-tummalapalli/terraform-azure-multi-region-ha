@@ -63,15 +63,61 @@ variable "regional_subnet_prefixes" {
 }
 
 variable "vm_instances_per_region" {
-  description = "Number of VM Scale Set instances per region for zonal resiliency."
+  description = "Deprecated global instance count. Prefer primary_vm_instances/secondary_vm_instances."
   type        = number
   default     = 2
 }
 
 variable "vm_sku" {
-  description = "VM size for the Linux VM Scale Set in each region."
+  description = "Deprecated global VM SKU. Prefer primary_vm_sku/secondary_vm_sku."
   type        = string
   default     = "Standard_B2s"
+}
+
+variable "primary_vm_instances" {
+  description = "Cost-aware primary region instance count (India)."
+  type        = number
+  default     = 2
+
+  validation {
+    condition     = var.primary_vm_instances >= 1
+    error_message = "primary_vm_instances must be at least 1."
+  }
+}
+
+variable "secondary_vm_instances" {
+  description = "Cost-aware secondary region standby instance count (US)."
+  type        = number
+  default     = 1
+
+  validation {
+    condition     = var.secondary_vm_instances >= 1
+    error_message = "secondary_vm_instances must be at least 1."
+  }
+}
+
+variable "primary_vm_sku" {
+  description = "Primary region VM SKU."
+  type        = string
+  default     = "Standard_B2s"
+}
+
+variable "secondary_vm_sku" {
+  description = "Secondary region VM SKU tuned for lower standby cost."
+  type        = string
+  default     = "Standard_B1ms"
+}
+
+variable "enable_secondary_spot" {
+  description = "When true, secondary region VMSS uses Spot instances for lower standby cost."
+  type        = bool
+  default     = true
+}
+
+variable "secondary_spot_max_bid_price" {
+  description = "Spot bid price for secondary VMSS (-1 means pay up to on-demand price cap)."
+  type        = number
+  default     = -1
 }
 
 variable "vm_admin_username" {

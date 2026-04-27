@@ -6,9 +6,16 @@ force_failover_to_secondary = false
 enable_fallback_website     = true
 dr_data_retention_days      = 30
 
-vm_instances_per_region = 2
-vm_sku                  = "Standard_B2s"
-vm_admin_username       = "azureuser"
+# Cost-efficient compute defaults:
+# - Primary keeps 2 regular instances for resilience.
+# - Secondary keeps 1 smaller standby instance and can use Spot for lower cost.
+primary_vm_instances       = 2
+secondary_vm_instances     = 1
+primary_vm_sku             = "Standard_B2s"
+secondary_vm_sku           = "Standard_B1ms"
+enable_secondary_spot      = true
+secondary_spot_max_bid_price = -1
+vm_admin_username          = "azureuser"
 
 # Example: ssh_public_key = "ssh-rsa AAAAB3Nza... user@host"
 ssh_public_key = "REPLACE_WITH_YOUR_SSH_PUBLIC_KEY"

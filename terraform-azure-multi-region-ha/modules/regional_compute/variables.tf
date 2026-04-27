@@ -33,6 +33,18 @@ variable "instances" {
   type        = number
 }
 
+variable "use_spot" {
+  description = "When true, deploys this VM Scale Set using Spot priority."
+  type        = bool
+  default     = false
+}
+
+variable "spot_max_bid_price" {
+  description = "Maximum bid price for Spot instances (-1 uses on-demand cap)."
+  type        = number
+  default     = -1
+}
+
 variable "admin_username" {
   description = "Admin username for VM instances."
   type        = string

@@ -30,6 +30,21 @@ locals {
   base_name               = "${var.project_name}-${random_string.suffix.result}"
   dr_storage_account_name = substr("st${replace(var.project_name, "-", "")}${random_string.suffix.result}", 0, 24)
   common_tags             = merge(var.tags, { architecture = "multi-region-ha" })
+  # Region-specific compute profile keeps primary robust and secondary cost-optimized.
+  regional_compute_profiles = {
+    primary = {
+      vm_sku             = var.primary_vm_sku
+      instances          = var.primary_vm_instances
+      use_spot           = false
+      spot_max_bid_price = -1
+    }
+    secondary = {
+      vm_sku             = var.secondary_vm_sku
+      instances          = var.secondary_vm_instances
+      use_spot           = var.enable_secondary_spot
+      spot_max_bid_price = var.secondary_spot_max_bid_price
+    }
+  }
 
   fallback_index_html = <<-HTML
     <!doctype html>
@@ -88,8 +103,10 @@ module "regional_compute" {
   location            = module.regional_foundation[each.key].location
   resource_group_name = module.regional_foundation[each.key].resource_group_name
   subnet_id           = module.regional_foundation[each.key].subnet_id
-  vm_sku              = var.vm_sku
-  instances           = var.vm_instances_per_region
+  vm_sku              = local.regional_compute_profiles[each.key].vm_sku
+  instances           = local.regional_compute_profiles[each.key].instances
+  use_spot            = local.regional_compute_profiles[each.key].use_spot
+  spot_max_bid_price  = local.regional_compute_profiles[each.key].spot_max_bid_price
   admin_username      = var.vm_admin_username
   ssh_public_key      = var.ssh_public_key
   health_probe_id     = module.regional_load_balancer[each.key].probe_id

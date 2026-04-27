@@ -27,6 +27,11 @@ This Terraform project deploys a resilient Azure architecture with:
 - `force_failover_to_secondary = true` makes US region active.
 - Set back to `false` to restore India as active.
 
+5. Cost-efficient default compute profile
+- Primary runs `2 x Standard_B2s` (regular priority).
+- Secondary runs `1 x Standard_B1ms` by default.
+- Secondary supports Spot mode (`enable_secondary_spot = true`) to lower standby cost further.
+
 ## Architecture
 
 ![Azure multi-region architecture with DR and fallback](docs/images/architecture-overview.svg)
@@ -71,7 +76,9 @@ flowchart TD
 - `force_failover_to_secondary` (bool): manual promotion of US endpoint.
 - `enable_fallback_website` (bool): enables/disables fallback endpoint.
 - `dr_data_retention_days` (number): retention for DR backup artifacts.
-- `vm_instances_per_region` and `vm_sku`: cost/performance controls.
+- `primary_vm_instances` / `secondary_vm_instances`: region-specific sizing.
+- `primary_vm_sku` / `secondary_vm_sku`: region-specific VM SKUs.
+- `enable_secondary_spot` / `secondary_spot_max_bid_price`: standby Spot optimization controls.
 
 ## Prerequisites
 
@@ -150,18 +157,29 @@ terraform output fallback_website_url
 ## Cost Optimization Strategy
 
 1. Right-size compute
-- Start with smaller SKUs and scale only from measured load.
-- Keep secondary footprint minimal for standby needs.
+- Primary and secondary are intentionally different sizes in defaults.
+- Keep secondary at low standby capacity unless incident traffic requires more.
 
 2. Use autoscale
 - Add VMSS autoscale rules for peak and off-peak usage.
 
 3. Optimize purchase model
-- Reserved capacity/Savings Plans for baseline, PAYG for burst.
+- Reserved capacity/Savings Plans for primary baseline, Spot for secondary standby.
 
 4. Minimize unnecessary retention and egress
 - Keep only required logs and backup retention.
 - Reduce non-essential inter-region traffic.
+
+### Cost-First Recommended Settings
+
+```hcl
+primary_vm_instances         = 2
+secondary_vm_instances       = 1
+primary_vm_sku               = "Standard_B2s"
+secondary_vm_sku             = "Standard_B1ms"
+enable_secondary_spot        = true
+secondary_spot_max_bid_price = -1
+```
 
 ## Cleanup
 

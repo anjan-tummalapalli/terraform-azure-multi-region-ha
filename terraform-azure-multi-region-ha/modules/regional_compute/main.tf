@@ -8,6 +8,14 @@ resource "azurerm_linux_virtual_machine_scale_set" "this" {
   admin_username      = var.admin_username
   health_probe_id     = var.health_probe_id
   upgrade_mode        = "Automatic"
+  # Avoids temporary extra instances created during provisioning.
+  overprovision = false
+  # Spot is applied only where explicitly requested (typically standby region).
+  priority = var.use_spot ? "Spot" : "Regular"
+  # Spot eviction behavior keeps evicted nodes deallocated for low-cost standby.
+  eviction_policy = var.use_spot ? "Deallocate" : null
+  # Bid cap for Spot instances; -1 means up to on-demand price.
+  max_bid_price = var.use_spot ? var.spot_max_bid_price : null
 
   source_image_reference {
     publisher = "Canonical"

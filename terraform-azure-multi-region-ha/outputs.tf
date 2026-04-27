@@ -32,6 +32,22 @@ output "regional_vmss_names" {
   }
 }
 
+output "regional_compute_cost_profile" {
+  description = "Effective cost profile for regional compute sizing and Spot usage."
+  value = {
+    primary = {
+      vm_sku    = var.primary_vm_sku
+      instances = var.primary_vm_instances
+      use_spot  = false
+    }
+    secondary = {
+      vm_sku    = var.secondary_vm_sku
+      instances = var.secondary_vm_instances
+      use_spot  = var.enable_secondary_spot
+    }
+  }
+}
+
 output "dr_storage_account_name" {
   description = "Geo-redundant storage account used for DR artifacts and fallback static site."
   value       = module.dr_storage_fallback.storage_account_name
