@@ -67,7 +67,7 @@
   <text class="text" x="720" y="621" text-anchor="middle">VM Scale Set (Robust baseline, cost-optimized)</text>
   <rect class="aks" x="545" y="656" width="350" height="96" rx="10"/>
   <text class="section-title" x="720" y="693" text-anchor="middle">AKS Cluster (Optional)</text>
-  <text class="small" x="720" y="718" text-anchor="middle">Enable via aks_region_roles=["secondary"]</text>
+  <text class="small" x="720" y="718" text-anchor="middle">Enabled by default; tune with aks_node_counts per region</text>
   <text class="small" x="720" y="739" text-anchor="middle">Use when active-active Kubernetes is needed</text>
 
   <rect class="fallback" x="960" y="390" width="420" height="170" rx="16"/>

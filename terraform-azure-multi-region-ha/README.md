@@ -238,6 +238,11 @@ kubectl get svc -n apps-demo nginx-volume-demo
 
 Note: this example uses `storageClassName: managed-csi` (default on AKS). If your cluster uses a different storage class, update the manifest.
 
+This manifest demonstrates:
+- Dynamic volume provisioning through a `PersistentVolumeClaim`.
+- Persistent file retention across pod restarts.
+- Volume mounting into Nginx content path (`/usr/share/nginx/html`).
+
 ### D) Validate persistence after pod restart
 
 ```bash
@@ -260,6 +265,13 @@ aks_enable_cluster_autoscaler = true
 aks_node_counts               = { primary = 2, secondary = 2 }
 aks_node_min_counts           = { primary = 2, secondary = 2 }
 aks_node_max_counts           = { primary = 4, secondary = 4 }
+```
+
+### F) Cleanup volume demo resources
+
+```bash
+kubectl delete -f k8s-examples/persistent-volume-nginx.yaml
+kubectl delete namespace apps-demo --ignore-not-found=true
 ```
 
 ## Proper DR and Fallback Operation Steps
