@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
   <title id="title">Azure Multi-Region HA with DR, Fallback, and AKS</title>
-  <desc id="desc">Traffic Manager routes to India primary, US secondary, and fallback website. Each region contains load balancer, VM scale set, and optional AKS cluster.</desc>
+  <desc id="desc">Traffic Manager routes to India primary, US secondary, and fallback website. Each region contains load balancer, VM scale set, and AKS cluster.</desc>
   <defs>
     <style>
       .bg { fill: #f4f8fc; }
@@ -32,7 +32,7 @@
 
   <rect class="bg" x="0" y="0" width="1440" height="900"/>
   <text class="title" x="720" y="48" text-anchor="middle">Azure Multi-Region HA + DR + Fallback + AKS</text>
-  <text class="subtitle" x="720" y="75" text-anchor="middle">Primary: Central India | Secondary: East US 2 | AKS optional per region (primary enabled by default)</text>
+  <text class="subtitle" x="720" y="75" text-anchor="middle">Primary: Central India | Secondary: East US 2 | AKS enabled in both regions by default</text>
 
   <rect class="client" x="600" y="105" width="240" height="66" rx="12"/>
   <text class="section-title" x="720" y="144" text-anchor="middle">Client Requests</text>
@@ -55,7 +55,7 @@
   <rect class="aks" x="95" y="656" width="350" height="96" rx="10"/>
   <text class="section-title" x="270" y="693" text-anchor="middle">AKS Cluster (Module)</text>
   <text class="small" x="270" y="718" text-anchor="middle">Managed Identity + Azure Policy + Autoscaler</text>
-  <text class="small" x="270" y="739" text-anchor="middle">Enabled by default in primary</text>
+  <text class="small" x="270" y="739" text-anchor="middle">Enabled by default in both regions</text>
 
   <rect class="secondary" x="510" y="390" width="420" height="390" rx="16"/>
   <text class="section-title" x="720" y="426" text-anchor="middle">Secondary Region: East US 2</text>
@@ -64,7 +64,7 @@
   <rect class="infra" x="545" y="520" width="350" height="54" rx="8"/>
   <text class="text" x="720" y="553" text-anchor="middle">Public Load Balancer</text>
   <rect class="infra" x="545" y="588" width="350" height="54" rx="8"/>
-  <text class="text" x="720" y="621" text-anchor="middle">VM Scale Set (Standby, Spot-capable)</text>
+  <text class="text" x="720" y="621" text-anchor="middle">VM Scale Set (Robust baseline, cost-optimized)</text>
   <rect class="aks" x="545" y="656" width="350" height="96" rx="10"/>
   <text class="section-title" x="720" y="693" text-anchor="middle">AKS Cluster (Optional)</text>
   <text class="small" x="720" y="718" text-anchor="middle">Enable via aks_region_roles=["secondary"]</text>

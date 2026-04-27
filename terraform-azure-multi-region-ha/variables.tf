@@ -30,7 +30,7 @@ variable "enable_aks" {
 variable "aks_region_roles" {
   description = "Region roles where AKS should be deployed."
   type        = list(string)
-  default     = ["primary"]
+  default     = ["primary", "secondary"]
 
   validation {
     condition     = alltrue([for role in var.aks_region_roles : contains(["primary", "secondary"], role)])
@@ -66,7 +66,7 @@ variable "aks_node_counts" {
   type        = map(number)
   default = {
     primary   = 2
-    secondary = 1
+    secondary = 2
   }
 }
 
@@ -89,8 +89,8 @@ variable "aks_node_min_counts" {
   description = "AKS node pool autoscaler minimum node count per region role."
   type        = map(number)
   default = {
-    primary   = 1
-    secondary = 1
+    primary   = 2
+    secondary = 2
   }
 }
 
@@ -99,7 +99,7 @@ variable "aks_node_max_counts" {
   type        = map(number)
   default = {
     primary   = 4
-    secondary = 2
+    secondary = 4
   }
 }
 
@@ -186,9 +186,9 @@ variable "primary_vm_instances" {
 }
 
 variable "secondary_vm_instances" {
-  description = "Cost-aware secondary region standby instance count (US)."
+  description = "Cost-aware secondary region baseline instance count (US)."
   type        = number
-  default     = 1
+  default     = 2
 
   validation {
     condition     = var.secondary_vm_instances >= 1
@@ -203,15 +203,15 @@ variable "primary_vm_sku" {
 }
 
 variable "secondary_vm_sku" {
-  description = "Secondary region VM SKU tuned for lower standby cost."
+  description = "Secondary region VM SKU tuned for balanced resilience and cost."
   type        = string
-  default     = "Standard_B1ms"
+  default     = "Standard_B2s"
 }
 
 variable "enable_secondary_spot" {
-  description = "When true, secondary region VMSS uses Spot instances for lower standby cost."
+  description = "When true, secondary region VMSS uses Spot instances for additional savings (optional)."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "secondary_spot_max_bid_price" {

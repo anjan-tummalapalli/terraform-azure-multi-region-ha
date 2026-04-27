@@ -6,11 +6,11 @@ This Terraform project deploys a resilient Azure architecture with:
 - **Global routing:** Azure Traffic Manager (Priority mode)
 - **Disaster recovery storage:** RA-GRS Storage Account for DR artifacts
 - **Last-resort fallback:** Static maintenance website endpoint
-- **Kubernetes platform:** AKS module (primary enabled by default, secondary optional)
+- **Kubernetes platform:** AKS module (primary and secondary enabled by default)
 
 ## What Is Implemented
 
-1. Regional active/passive compute platform
+1. Regional robust compute platform
 - Separate RG, VNet, subnet, NSG, LB, and Linux VMSS in both regions.
 - Traffic Manager prioritizes India first and US second.
 
@@ -28,10 +28,10 @@ This Terraform project deploys a resilient Azure architecture with:
 - `force_failover_to_secondary = true` makes US region active.
 - Set back to `false` to restore India as active.
 
-5. Cost-efficient default compute profile
+5. Cost-optimized robust default compute profile
 - Primary runs `2 x Standard_B2s` (regular priority).
-- Secondary runs `1 x Standard_B1ms` by default.
-- Secondary supports Spot mode (`enable_secondary_spot = true`) to lower standby cost further.
+- Secondary runs `2 x Standard_B2s` (regular priority).
+- Secondary Spot remains available but disabled by default for resilience-first operations.
 
 6. Security-first baseline controls
 - SSH access is disabled by default (`enable_ssh_access = false`).
@@ -41,8 +41,8 @@ This Terraform project deploys a resilient Azure architecture with:
 
 7. Kubernetes module support
 - AKS clusters are deployed through a dedicated module (`modules/aks_kubernetes`).
-- Default configuration deploys AKS in primary region only for cost efficiency.
-- Secondary AKS can be enabled for active-active Kubernetes patterns.
+- Default configuration deploys AKS in both regions with autoscaling.
+- Cluster sizing is kept cost-aware via node VM sizing and autoscaler limits.
 
 ## Architecture
 
@@ -53,8 +53,8 @@ This Terraform project deploys a resilient Azure architecture with:
 ```mermaid
 flowchart TD
     C["Clients"] --> TM["Azure Traffic Manager (Priority)"]
-    TM -->|Priority 1 default| IN["Central India: LB + VMSS + AKS (default)"]
-    TM -->|Priority 2 default| US["East US 2: LB + VMSS (+ optional AKS)"]
+    TM -->|Priority 1 default| IN["Central India: LB + VMSS + AKS"]
+    TM -->|Priority 2 default| US["East US 2: LB + VMSS + AKS"]
     TM -->|Priority 3| FB["Fallback Static Website"]
 
     DR["RA-GRS DR Storage\n- dr-backups container\n- versioning + retention"] --> FB
@@ -93,7 +93,7 @@ flowchart TD
 - `dr_data_retention_days` (number): retention for DR backup artifacts.
 - `primary_vm_instances` / `secondary_vm_instances`: region-specific sizing.
 - `primary_vm_sku` / `secondary_vm_sku`: region-specific VM SKUs.
-- `enable_secondary_spot` / `secondary_spot_max_bid_price`: standby Spot optimization controls.
+- `enable_secondary_spot` / `secondary_spot_max_bid_price`: optional Spot savings controls for overflow/non-critical capacity.
 - `allowed_http_source_cidrs`: explicit HTTP source CIDR allowlist.
 - `enable_ssh_access` / `allowed_ssh_source_cidrs`: break-glass SSH controls.
 - `enable_aks` / `aks_region_roles`: AKS enablement and region selection.
@@ -171,11 +171,11 @@ terraform output aks_kubeconfig_commands
 
 Use these prebuilt profiles from the `examples/` directory:
 
-1. Cost-efficient baseline with AKS in primary only:
+1. Balanced robust baseline in both regions:
 
 ```bash
-terraform plan -var-file="examples/01-cost-efficient-primary-aks.tfvars"
-terraform apply -var-file="examples/01-cost-efficient-primary-aks.tfvars"
+terraform plan -var-file="examples/01-balanced-robust-active-active.tfvars"
+terraform apply -var-file="examples/01-balanced-robust-active-active.tfvars"
 ```
 
 2. Security-hardened profile with restricted ingress and private AKS:
@@ -207,10 +207,10 @@ Note: each example file contains `ssh_public_key = "REPLACE_WITH_YOUR_SSH_PUBLIC
 
 ![AKS deployment and operations flow](docs/images/aks-operations-flow.svg)
 
-### A) Deploy AKS in primary only (default)
+### A) Deploy AKS in both primary and secondary (default)
 
 1. Keep `enable_aks = true`.
-2. Keep `aks_region_roles = ["primary"]`.
+2. Keep `aks_region_roles = ["primary", "secondary"]`.
 3. Run `terraform apply`.
 4. Run command from `terraform output aks_kubeconfig_commands`.
 5. Verify cluster access:
@@ -219,10 +219,10 @@ Note: each example file contains `ssh_public_key = "REPLACE_WITH_YOUR_SSH_PUBLIC
 kubectl get nodes
 ```
 
-### B) Enable AKS in both primary and secondary
+### B) Tune AKS scale profile for your workload
 
-1. Update `aks_region_roles = ["primary", "secondary"]`.
-2. Optionally tune `aks_node_counts` and autoscaler limits per region.
+1. Keep `aks_region_roles = ["primary", "secondary"]`.
+2. Tune `aks_node_counts`, `aks_node_min_counts`, and `aks_node_max_counts` per region.
 3. Run `terraform apply`.
 4. Fetch kubeconfig for each region from `aks_kubeconfig_commands` output.
 
@@ -239,13 +239,13 @@ kubectl get svc demo-nginx
 
 ```hcl
 enable_aks                    = true
-aks_region_roles              = ["primary"]
+aks_region_roles              = ["primary", "secondary"]
 aks_sku_tier                  = "Free"
 aks_private_cluster_enabled   = false
 aks_enable_cluster_autoscaler = true
-aks_node_counts               = { primary = 2, secondary = 1 }
-aks_node_min_counts           = { primary = 1, secondary = 1 }
-aks_node_max_counts           = { primary = 4, secondary = 2 }
+aks_node_counts               = { primary = 2, secondary = 2 }
+aks_node_min_counts           = { primary = 2, secondary = 2 }
+aks_node_max_counts           = { primary = 4, secondary = 4 }
 ```
 
 ## Proper DR and Fallback Operation Steps
@@ -285,14 +285,15 @@ aks_node_max_counts           = { primary = 4, secondary = 2 }
 ## Cost Optimization Strategy
 
 1. Right-size compute
-- Primary and secondary are intentionally different sizes in defaults.
-- Keep secondary at low standby capacity unless incident traffic requires more.
+- Primary and secondary are intentionally kept at robust but right-sized baseline capacity.
+- Keep both regions at minimum viable resilient size, then scale out via autoscaler.
 
 2. Use autoscale
 - Add VMSS autoscale rules for peak and off-peak usage.
 
 3. Optimize purchase model
-- Reserved capacity/Savings Plans for primary baseline, Spot for secondary standby.
+- Reserved capacity/Savings Plans for both regional baselines.
+- Use Spot selectively for non-critical overflow capacity only.
 
 4. Minimize unnecessary retention and egress
 - Keep only required logs and backup retention.
@@ -302,10 +303,10 @@ aks_node_max_counts           = { primary = 4, secondary = 2 }
 
 ```hcl
 primary_vm_instances         = 2
-secondary_vm_instances       = 1
+secondary_vm_instances       = 2
 primary_vm_sku               = "Standard_B2s"
-secondary_vm_sku             = "Standard_B1ms"
-enable_secondary_spot        = true
+secondary_vm_sku             = "Standard_B2s"
+enable_secondary_spot        = false
 secondary_spot_max_bid_price = -1
 ```
 
@@ -326,4 +327,4 @@ terraform destroy
 ## Notes
 
 - This baseline is intentionally simple; production hardening should include WAF, private ingress, secret rotation, and policy enforcement.
-- Multi-region infrastructure has continuous cost implications even in standby mode.
+- Multi-region infrastructure has continuous cost implications even with optimized dual-region baselines.

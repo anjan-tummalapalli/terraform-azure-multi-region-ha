@@ -30,7 +30,7 @@ locals {
   base_name               = "${var.project_name}-${random_string.suffix.result}"
   dr_storage_account_name = substr("st${replace(var.project_name, "-", "")}${random_string.suffix.result}", 0, 24)
   common_tags             = merge(var.tags, { architecture = "multi-region-ha" })
-  # Region-specific compute profile keeps primary robust and secondary cost-optimized.
+  # Region-specific compute profile keeps both regions robust while controlling cost.
   regional_compute_profiles = {
     primary = {
       vm_sku             = var.primary_vm_sku

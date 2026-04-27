@@ -26,7 +26,7 @@
   <text class="step-title" x="190" y="230" text-anchor="middle">1. Enable AKS</text>
   <text class="text" x="190" y="262" text-anchor="middle">Set enable_aks = true</text>
   <text class="text" x="190" y="287" text-anchor="middle">Choose aks_region_roles</text>
-  <text class="text" x="190" y="312" text-anchor="middle">(primary default)</text>
+  <text class="text" x="190" y="312" text-anchor="middle">(primary + secondary default)</text>
 
   <rect class="step" x="340" y="190" width="240" height="170" rx="14"/>
   <text class="step-title" x="460" y="230" text-anchor="middle">2. Size Node Pools</text>
@@ -66,8 +66,8 @@
 
   <rect class="note" x="700" y="450" width="520" height="210" rx="14"/>
   <text class="step-title" x="960" y="492" text-anchor="middle">Cost-Aware AKS Guidance</text>
-  <text class="text" x="960" y="526" text-anchor="middle">Primary-only AKS is the default (lowest baseline cost)</text>
-  <text class="text" x="960" y="552" text-anchor="middle">Add secondary AKS only for active-active K8s strategy</text>
+  <text class="text" x="960" y="526" text-anchor="middle">Both regions keep resilient AKS baseline capacity by default</text>
+  <text class="text" x="960" y="552" text-anchor="middle">Use autoscaler + right-sized VMs to stay cost optimized</text>
   <text class="text" x="960" y="578" text-anchor="middle">Use autoscaler and right-size node pools from real load</text>
   <text class="text" x="960" y="604" text-anchor="middle">Keep control plane tier Free unless Standard is required</text>
 </svg>

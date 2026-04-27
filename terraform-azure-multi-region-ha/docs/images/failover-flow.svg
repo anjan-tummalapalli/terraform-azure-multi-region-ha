@@ -30,7 +30,7 @@
   <text class="step-title" x="185" y="212" text-anchor="middle">1. Normal</text>
   <text class="text" x="185" y="245" text-anchor="middle">India endpoint healthy</text>
   <text class="text" x="185" y="270" text-anchor="middle">Serves production traffic</text>
-  <text class="text" x="185" y="295" text-anchor="middle">US is standby</text>
+  <text class="text" x="185" y="295" text-anchor="middle">US is robust warm standby</text>
 
   <rect class="step" x="340" y="170" width="250" height="180" rx="14"/>
   <text class="step-title" x="465" y="212" text-anchor="middle">2. Detect Failure</text>
