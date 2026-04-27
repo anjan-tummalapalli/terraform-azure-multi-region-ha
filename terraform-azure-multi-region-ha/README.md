@@ -7,6 +7,7 @@ This Terraform project deploys a resilient Azure architecture with:
 - **Disaster recovery storage:** RA-GRS Storage Account for DR artifacts
 - **Last-resort fallback:** Static maintenance website endpoint
 - **Kubernetes platform:** AKS module (primary and secondary enabled by default)
+- **Persistent volumes:** Azure Files shares for AKS workloads in each AKS region
 
 ## What Is Implemented
 
@@ -44,6 +45,12 @@ This Terraform project deploys a resilient Azure architecture with:
 - Default configuration deploys AKS in both regions with autoscaling.
 - Cluster sizing is kept cost-aware via node VM sizing and autoscaler limits.
 
+8. Persistent volume storage for AKS
+- Terraform can create Azure Files storage per AKS region role.
+- Shares are usable for static PV + PVC deployments (`ReadWriteMany`).
+- Storage defaults are cost-aware (`Standard_LRS`, moderate quota) and can be
+  tuned by variable.
+
 ## Architecture
 
 ![Azure multi-region architecture with DR and fallback](docs/images/architecture-overview.svg)
@@ -73,6 +80,7 @@ flowchart TD
 - `terraform.tfvars.example` - Sample variable file.
 - `scripts/cloud-init.sh` - Bootstraps Nginx for health endpoint.
 - `k8s-examples/persistent-volume-nginx.yaml` - AKS workload example with persistent volume claim.
+- `k8s-examples/azurefile-static-pv-nginx.yaml` - Static PV + PVC example backed by Terraform-managed Azure Files share.
 - `docs/images/architecture-overview.svg` - Architecture visual.
 - `docs/images/failover-flow.svg` - Failover/fallback flow visual.
 - `docs/images/aks-operations-flow.svg` - AKS deployment and access workflow visual.
@@ -84,6 +92,7 @@ flowchart TD
 - `modules/regional_load_balancer` - Public IP, Load Balancer, backend pool, probe, and rule.
 - `modules/regional_compute` - Linux VM Scale Set attached to regional backend pool.
 - `modules/aks_kubernetes` - AKS cluster per selected region with secure defaults.
+- `modules/aks_persistent_storage` - Azure Files storage account + file share for AKS persistent volumes.
 - `modules/dr_storage_fallback` - RA-GRS storage, DR backup container, lifecycle policy, fallback static pages.
 - `modules/global_traffic_manager` - Traffic Manager profile, regional endpoints, fallback endpoint.
 
@@ -101,6 +110,9 @@ flowchart TD
 - `aks_node_counts` / `aks_node_vm_sizes`: AKS sizing controls.
 - `aks_enable_cluster_autoscaler`, `aks_node_min_counts`, `aks_node_max_counts`: AKS scaling controls.
 - `aks_private_cluster_enabled`, `aks_sku_tier`: AKS security/cost posture controls.
+- `enable_aks_persistent_storage`: enables Azure Files creation for AKS volumes.
+- `aks_persistent_storage_account_tier`, `aks_persistent_storage_replication_type`: persistent storage performance/redundancy controls.
+- `aks_persistent_file_share_name`, `aks_persistent_share_quota_gb`: share name and capacity controls.
 
 ## Security Principles
 
@@ -129,6 +141,7 @@ flowchart TD
 - Terraform `>= 1.5`
 - Azure CLI
 - `kubectl` (for cluster operations)
+- `jq` (used in output parsing commands for PV setup)
 - Azure subscription with permissions for network/compute/storage
 - Azure permissions to create AKS clusters and node pools
 - SSH public key for VMSS Linux login
@@ -166,6 +179,8 @@ terraform output traffic_manager_endpoint_priorities
 terraform output fallback_website_url
 terraform output aks_cluster_names
 terraform output aks_kubeconfig_commands
+terraform output aks_persistent_storage_accounts
+terraform output aks_persistent_storage_shares
 ```
 
 ## Usage Examples
@@ -243,7 +258,51 @@ This manifest demonstrates:
 - Persistent file retention across pod restarts.
 - Volume mounting into Nginx content path (`/usr/share/nginx/html`).
 
-### D) Validate persistence after pod restart
+### D) Use Terraform-managed Azure Files for a static PV + PVC
+
+1. Pick the AKS region role where you want to run the workload (for example
+   `primary`).
+2. Read Terraform outputs and set shell variables:
+
+```bash
+ROLE="primary"
+AKS_RG=$(terraform output -json regional_resource_groups | jq -r ".${ROLE}")
+STORAGE_ACCOUNT=$(terraform output -json aks_persistent_storage_accounts | jq -r ".${ROLE}")
+FILE_SHARE=$(terraform output -json aks_persistent_storage_shares | jq -r ".${ROLE}")
+STORAGE_KEY=$(az storage account keys list \
+  --resource-group "$AKS_RG" \
+  --account-name "$STORAGE_ACCOUNT" \
+  --query '[0].value' -o tsv)
+```
+
+3. Connect to the AKS cluster for the same role:
+
+```bash
+terraform output -json aks_kubeconfig_commands | jq -r ".${ROLE}" | sh
+```
+
+4. Create Kubernetes secret for Azure Files CSI:
+
+```bash
+kubectl create namespace apps-demo --dry-run=client -o yaml | kubectl apply -f -
+kubectl -n apps-demo create secret generic azurefile-secret \
+  --from-literal=azurestorageaccountname="$STORAGE_ACCOUNT" \
+  --from-literal=azurestorageaccountkey="$STORAGE_KEY"
+```
+
+5. Apply static PV/PVC manifest by replacing placeholders:
+
+```bash
+sed \
+  -e "s|<RESOURCE_GROUP_NAME>|$AKS_RG|g" \
+  -e "s|<STORAGE_ACCOUNT_NAME>|$STORAGE_ACCOUNT|g" \
+  -e "s|<FILE_SHARE_NAME>|$FILE_SHARE|g" \
+  k8s-examples/azurefile-static-pv-nginx.yaml | kubectl apply -f -
+kubectl get pv,pvc -n apps-demo
+kubectl get deploy,svc -n apps-demo
+```
+
+### E) Validate persistence after pod restart
 
 ```bash
 kubectl exec -n apps-demo deploy/nginx-volume-demo -- sh -c 'echo "hello-from-pvc" >> /usr/share/nginx/html/index.html'
@@ -254,7 +313,7 @@ kubectl exec -n apps-demo deploy/nginx-volume-demo -- cat /usr/share/nginx/html/
 
 If `hello-from-pvc` is still present after restart, volume persistence is working as expected.
 
-### E) Recommended AKS baseline settings
+### F) Recommended AKS baseline settings
 
 ```hcl
 enable_aks                    = true
@@ -265,12 +324,17 @@ aks_enable_cluster_autoscaler = true
 aks_node_counts               = { primary = 2, secondary = 2 }
 aks_node_min_counts           = { primary = 2, secondary = 2 }
 aks_node_max_counts           = { primary = 4, secondary = 4 }
+enable_aks_persistent_storage = true
+aks_persistent_share_quota_gb = 32
+aks_persistent_storage_account_tier = "Standard"
+aks_persistent_storage_replication_type = "LRS"
 ```
 
-### F) Cleanup volume demo resources
+### G) Cleanup volume demo resources
 
 ```bash
 kubectl delete -f k8s-examples/persistent-volume-nginx.yaml
+kubectl delete -f k8s-examples/azurefile-static-pv-nginx.yaml --ignore-not-found=true
 kubectl delete namespace apps-demo --ignore-not-found=true
 ```
 

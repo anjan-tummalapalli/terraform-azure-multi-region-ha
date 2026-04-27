@@ -48,6 +48,35 @@ output "aks_kubeconfig_commands" {
   }
 }
 
+output "aks_persistent_storage_accounts" {
+  description = "Storage account names created for AKS persistent volumes by region."
+  value = {
+    for key, storage in module.aks_persistent_storage :
+    key => storage.storage_account_name
+  }
+}
+
+output "aks_persistent_storage_shares" {
+  description = "Azure Files share names created for AKS persistent volumes by region."
+  value = {
+    for key, storage in module.aks_persistent_storage :
+    key => storage.storage_share_name
+  }
+}
+
+output "aks_persistent_volume_k8s_hints" {
+  description = "Kubernetes secret naming hints for Azure Files static PV setup."
+  value = {
+    for key, storage in module.aks_persistent_storage :
+    key => {
+      resource_group_name = storage.resource_group_name
+      storage_account     = storage.storage_account_name
+      storage_share       = storage.storage_share_name
+      secret_name         = storage.kubernetes_secret_name
+    }
+  }
+}
+
 output "regional_compute_cost_profile" {
   description = "Effective cost profile for regional compute sizing and Spot usage."
   value = {

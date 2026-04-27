@@ -121,6 +121,59 @@ variable "aks_dns_service_ips" {
   }
 }
 
+variable "enable_aks_persistent_storage" {
+  description = "When true, creates Azure Files resources for AKS persistent volumes."
+  type        = bool
+  default     = true
+}
+
+variable "aks_persistent_storage_account_tier" {
+  description = "Performance tier for AKS persistent storage accounts."
+  type        = string
+  default     = "Standard"
+
+  validation {
+    condition     = contains(["Standard", "Premium"], var.aks_persistent_storage_account_tier)
+    error_message = "aks_persistent_storage_account_tier must be Standard or Premium."
+  }
+}
+
+variable "aks_persistent_storage_replication_type" {
+  description = "Redundancy model for AKS persistent storage accounts."
+  type        = string
+  default     = "LRS"
+
+  validation {
+    condition = contains(
+      ["LRS", "GRS", "RAGRS", "ZRS", "GZRS", "RAGZRS"],
+      var.aks_persistent_storage_replication_type
+    )
+    error_message = "aks_persistent_storage_replication_type is invalid."
+  }
+}
+
+variable "aks_persistent_file_share_name" {
+  description = "Azure Files share name mounted by AKS workloads."
+  type        = string
+  default     = "app-content"
+
+  validation {
+    condition     = can(regex("^[a-z0-9-]{3,63}$", var.aks_persistent_file_share_name))
+    error_message = "aks_persistent_file_share_name must be 3-63 lowercase chars."
+  }
+}
+
+variable "aks_persistent_share_quota_gb" {
+  description = "Azure Files share quota in GiB used for AKS persistent data."
+  type        = number
+  default     = 32
+
+  validation {
+    condition     = var.aks_persistent_share_quota_gb >= 5 && var.aks_persistent_share_quota_gb <= 5120
+    error_message = "aks_persistent_share_quota_gb must be between 5 and 5120."
+  }
+}
+
 variable "force_failover_to_secondary" {
   description = "When true, swaps Traffic Manager priorities so the US region becomes active."
   type        = bool

@@ -52,6 +52,12 @@ locals {
     key => region if contains(var.aks_region_roles, key)
   } : {}
 
+  # Persistent storage follows the same AKS region selection strategy so that
+  # each enabled AKS region gets region-local durable file storage.
+  aks_persistent_storage_regions = (
+    var.enable_aks && var.enable_aks_persistent_storage
+  ) ? local.aks_regions : {}
+
   fallback_index_html = <<-HTML
     <!doctype html>
     <html>
@@ -151,6 +157,25 @@ module "aks_kubernetes" {
   service_cidr              = var.aks_service_cidrs[each.key]
   dns_service_ip            = var.aks_dns_service_ips[each.key]
   common_tags               = local.common_tags
+}
+
+# Builds Azure Files storage resources for AKS persistent volume usage.
+module "aks_persistent_storage" {
+  for_each = local.aks_persistent_storage_regions
+
+  source = "./modules/aks_persistent_storage"
+
+  region_key               = each.key
+  project_name             = var.project_name
+  unique_suffix            = random_string.suffix.result
+  location                 = module.regional_foundation[each.key].location
+  resource_group_name      = module.regional_foundation[each.key].resource_group_name
+  subnet_id                = module.regional_foundation[each.key].subnet_id
+  account_tier             = var.aks_persistent_storage_account_tier
+  account_replication_type = var.aks_persistent_storage_replication_type
+  file_share_name          = var.aks_persistent_file_share_name
+  share_quota_gb           = var.aks_persistent_share_quota_gb
+  common_tags              = local.common_tags
 }
 
 # Builds geo-redundant DR storage and optional static fallback website.

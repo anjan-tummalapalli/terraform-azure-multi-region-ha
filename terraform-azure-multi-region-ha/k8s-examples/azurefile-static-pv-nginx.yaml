@@ -1,0 +1,82 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: apps-demo
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nginx-azurefile-static-pv
+spec:
+  capacity:
+    storage: 4Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: azurefile-csi-static
+  csi:
+    driver: file.csi.azure.com
+    readOnly: false
+    volumeHandle: "<STORAGE_ACCOUNT_NAME>#<FILE_SHARE_NAME>"
+    volumeAttributes:
+      resourceGroup: "<RESOURCE_GROUP_NAME>"
+      shareName: "<FILE_SHARE_NAME>"
+    nodeStageSecretRef:
+      name: azurefile-secret
+      namespace: apps-demo
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nginx-azurefile-static-pvc
+  namespace: apps-demo
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 4Gi
+  storageClassName: azurefile-csi-static
+  volumeName: nginx-azurefile-static-pv
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-azurefile-static-demo
+  namespace: apps-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-azurefile-static-demo
+  template:
+    metadata:
+      labels:
+        app: nginx-azurefile-static-demo
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.27
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: web-content
+              mountPath: /usr/share/nginx/html
+      volumes:
+        - name: web-content
+          persistentVolumeClaim:
+            claimName: nginx-azurefile-static-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-azurefile-static-demo
+  namespace: apps-demo
+spec:
+  selector:
+    app: nginx-azurefile-static-demo
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+  type: ClusterIP
