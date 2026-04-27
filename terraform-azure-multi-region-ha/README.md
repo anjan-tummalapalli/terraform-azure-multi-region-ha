@@ -75,6 +75,7 @@ flowchart TD
 - `docs/images/architecture-overview.svg` - Architecture visual.
 - `docs/images/failover-flow.svg` - Failover/fallback flow visual.
 - `docs/images/aks-operations-flow.svg` - AKS deployment and access workflow visual.
+- `examples/*.tfvars` - Ready-to-use deployment profiles for common scenarios.
 
 ## Module Layout
 
@@ -165,6 +166,42 @@ terraform output fallback_website_url
 terraform output aks_cluster_names
 terraform output aks_kubeconfig_commands
 ```
+
+## Usage Examples
+
+Use these prebuilt profiles from the `examples/` directory:
+
+1. Cost-efficient baseline with AKS in primary only:
+
+```bash
+terraform plan -var-file="examples/01-cost-efficient-primary-aks.tfvars"
+terraform apply -var-file="examples/01-cost-efficient-primary-aks.tfvars"
+```
+
+2. Security-hardened profile with restricted ingress and private AKS:
+
+```bash
+terraform plan -var-file="examples/02-secure-private-aks.tfvars"
+terraform apply -var-file="examples/02-secure-private-aks.tfvars"
+```
+
+3. DR failover drill profile (forces secondary active):
+
+```bash
+terraform plan -var-file="examples/03-dr-failover-drill.tfvars"
+terraform apply -var-file="examples/03-dr-failover-drill.tfvars"
+terraform output traffic_manager_endpoint_priorities
+```
+
+4. Active-active AKS in both regions:
+
+```bash
+terraform plan -var-file="examples/04-active-active-aks.tfvars"
+terraform apply -var-file="examples/04-active-active-aks.tfvars"
+terraform output aks_cluster_names
+```
+
+Note: each example file contains `ssh_public_key = "REPLACE_WITH_YOUR_SSH_PUBLIC_KEY"`. Replace that value before apply.
 
 ## Kubernetes (AKS) Instructions
 
