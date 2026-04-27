@@ -1,78 +1,78 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760" role="img" aria-labelledby="title desc">
-  <title id="title">Azure Multi-Region High Availability Architecture</title>
-  <desc id="desc">Traffic Manager directs traffic to Central India as primary and East US 2 as fallback.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="820" viewBox="0 0 1360 820" role="img" aria-labelledby="title desc">
+  <title id="title">Azure Multi-Region HA with DR and Fallback</title>
+  <desc id="desc">Traffic Manager routes to India primary, US secondary, and static fallback endpoint. DR storage is geo-redundant.</desc>
   <defs>
     <style>
-      .bg { fill: #f4f8fb; }
-      .title { font: 700 28px Arial, sans-serif; fill: #102a43; }
+      .bg { fill: #f5f8fc; }
+      .title { font: 700 30px Arial, sans-serif; fill: #102a43; }
       .subtitle { font: 500 16px Arial, sans-serif; fill: #334e68; }
       .box-title { font: 700 18px Arial, sans-serif; fill: #102a43; }
       .box-text { font: 500 14px Arial, sans-serif; fill: #243b53; }
-      .label { font: 700 14px Arial, sans-serif; fill: #102a43; }
       .small { font: 500 12px Arial, sans-serif; fill: #486581; }
-      .primary { fill: #d9f2e5; stroke: #2f855a; stroke-width: 2; }
-      .secondary { fill: #e6efff; stroke: #2b6cb0; stroke-width: 2; }
-      .infra { fill: #ffffff; stroke: #9fb3c8; stroke-width: 1.5; }
       .global { fill: #fff7d6; stroke: #c05621; stroke-width: 2; }
-      .client { fill: #f0e5ff; stroke: #6b46c1; stroke-width: 2; }
-      .arrow-primary { stroke: #2f855a; stroke-width: 3; fill: none; marker-end: url(#arrow-primary); }
-      .arrow-secondary { stroke: #2b6cb0; stroke-width: 3; fill: none; marker-end: url(#arrow-secondary); }
-      .arrow-global { stroke: #c05621; stroke-width: 3; fill: none; marker-end: url(#arrow-global); }
-      .dash { stroke-dasharray: 8 6; }
+      .client { fill: #ede9fe; stroke: #6d28d9; stroke-width: 2; }
+      .primary { fill: #dcfce7; stroke: #15803d; stroke-width: 2; }
+      .secondary { fill: #dbeafe; stroke: #1d4ed8; stroke-width: 2; }
+      .fallback { fill: #fee2e2; stroke: #b91c1c; stroke-width: 2; }
+      .dr { fill: #fff1c2; stroke: #a16207; stroke-width: 2; }
+      .infra { fill: #ffffff; stroke: #9fb3c8; stroke-width: 1.5; }
+      .arrow-g { stroke: #c05621; stroke-width: 3; fill: none; marker-end: url(#ag); }
+      .arrow-p { stroke: #15803d; stroke-width: 3; fill: none; marker-end: url(#ap); }
+      .arrow-s { stroke: #1d4ed8; stroke-width: 3; fill: none; marker-end: url(#as); }
+      .arrow-f { stroke: #b91c1c; stroke-width: 3; fill: none; marker-end: url(#af); }
+      .arrow-d { stroke: #a16207; stroke-width: 2.5; fill: none; marker-end: url(#ad); stroke-dasharray: 7 6; }
     </style>
-    <marker id="arrow-primary" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-      <polygon points="0 0, 10 3, 0 6" fill="#2f855a"/>
-    </marker>
-    <marker id="arrow-secondary" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-      <polygon points="0 0, 10 3, 0 6" fill="#2b6cb0"/>
-    </marker>
-    <marker id="arrow-global" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-      <polygon points="0 0, 10 3, 0 6" fill="#c05621"/>
-    </marker>
+    <marker id="ag" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0, 10 3, 0 6" fill="#c05621"/></marker>
+    <marker id="ap" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0, 10 3, 0 6" fill="#15803d"/></marker>
+    <marker id="as" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0, 10 3, 0 6" fill="#1d4ed8"/></marker>
+    <marker id="af" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0, 10 3, 0 6" fill="#b91c1c"/></marker>
+    <marker id="ad" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0, 10 3, 0 6" fill="#a16207"/></marker>
   </defs>
 
-  <rect class="bg" x="0" y="0" width="1280" height="760" rx="0" />
+  <rect class="bg" x="0" y="0" width="1360" height="820"/>
+  <text class="title" x="680" y="50" text-anchor="middle">Azure Multi-Region HA + DR + Fallback</text>
+  <text class="subtitle" x="680" y="78" text-anchor="middle">Primary: Central India | Secondary: East US 2 | Last-resort fallback static site</text>
 
-  <text class="title" x="640" y="48" text-anchor="middle">Azure Multi-Region HA Terraform Architecture</text>
-  <text class="subtitle" x="640" y="76" text-anchor="middle">Primary: Central India | Secondary: East US 2 | Global Failover via Traffic Manager (Priority)</text>
+  <rect class="client" x="560" y="110" width="240" height="70" rx="12"/>
+  <text class="box-title" x="680" y="150" text-anchor="middle">Client Requests</text>
 
-  <rect class="client" x="525" y="110" width="230" height="70" rx="12"/>
-  <text class="box-title" x="640" y="148" text-anchor="middle">Client Requests</text>
+  <rect class="global" x="440" y="230" width="480" height="120" rx="14"/>
+  <text class="box-title" x="680" y="275" text-anchor="middle">Azure Traffic Manager (Priority)</text>
+  <text class="box-text" x="680" y="303" text-anchor="middle">Priority 1: India | Priority 2: US | Priority 3: Fallback Website</text>
+  <text class="small" x="680" y="327" text-anchor="middle">Health probe: HTTP / on port 80</text>
 
-  <rect class="global" x="425" y="235" width="430" height="110" rx="14"/>
-  <text class="box-title" x="640" y="275" text-anchor="middle">Azure Traffic Manager</text>
-  <text class="box-text" x="640" y="302" text-anchor="middle">Routing Method: Priority</text>
-  <text class="small" x="640" y="325" text-anchor="middle">Health probe: HTTP / on port 80</text>
+  <path class="arrow-g" d="M680 180 L680 230"/>
 
-  <path class="arrow-global" d="M640 180 L640 235" />
+  <rect class="primary" x="70" y="400" width="410" height="300" rx="16"/>
+  <text class="box-title" x="275" y="435" text-anchor="middle">Central India (Primary)</text>
+  <rect class="infra" x="105" y="462" width="340" height="58" rx="8"/>
+  <text class="box-text" x="275" y="497" text-anchor="middle">RG + VNet + Subnet + NSG</text>
+  <rect class="infra" x="105" y="535" width="340" height="58" rx="8"/>
+  <text class="box-text" x="275" y="570" text-anchor="middle">Standard Public Load Balancer</text>
+  <rect class="infra" x="105" y="608" width="340" height="58" rx="8"/>
+  <text class="box-text" x="275" y="643" text-anchor="middle">Linux VM Scale Set (2+)</text>
 
-  <rect class="primary" x="90" y="390" width="500" height="300" rx="16"/>
-  <text class="box-title" x="340" y="425" text-anchor="middle">Primary Region: Central India (Priority 1)</text>
+  <rect class="secondary" x="500" y="400" width="410" height="300" rx="16"/>
+  <text class="box-title" x="705" y="435" text-anchor="middle">East US 2 (Secondary)</text>
+  <rect class="infra" x="535" y="462" width="340" height="58" rx="8"/>
+  <text class="box-text" x="705" y="497" text-anchor="middle">RG + VNet + Subnet + NSG</text>
+  <rect class="infra" x="535" y="535" width="340" height="58" rx="8"/>
+  <text class="box-text" x="705" y="570" text-anchor="middle">Standard Public Load Balancer</text>
+  <rect class="infra" x="535" y="608" width="340" height="58" rx="8"/>
+  <text class="box-text" x="705" y="643" text-anchor="middle">Linux VM Scale Set (2+)</text>
 
-  <rect class="infra" x="130" y="450" width="420" height="58" rx="8"/>
-  <text class="box-text" x="340" y="485" text-anchor="middle">Resource Group + VNet + App Subnet + NSG</text>
+  <rect class="fallback" x="940" y="400" width="350" height="150" rx="16"/>
+  <text class="box-title" x="1115" y="438" text-anchor="middle">Fallback Endpoint</text>
+  <text class="box-text" x="1115" y="468" text-anchor="middle">Static Website Maintenance Page</text>
+  <text class="small" x="1115" y="492" text-anchor="middle">Traffic Manager Priority 3</text>
 
-  <rect class="infra" x="130" y="523" width="420" height="58" rx="8"/>
-  <text class="box-text" x="340" y="558" text-anchor="middle">Standard Public Load Balancer (HTTP rule + probe)</text>
+  <rect class="dr" x="940" y="575" width="350" height="125" rx="16"/>
+  <text class="box-title" x="1115" y="612" text-anchor="middle">DR Storage (RA-GRS)</text>
+  <text class="box-text" x="1115" y="640" text-anchor="middle">dr-backups container + versioning</text>
+  <text class="small" x="1115" y="662" text-anchor="middle">Retention policy for recovery artifacts</text>
 
-  <rect class="infra" x="130" y="596" width="420" height="58" rx="8"/>
-  <text class="box-text" x="340" y="631" text-anchor="middle">Linux VM Scale Set (2+ instances, zone resilient)</text>
-
-  <rect class="secondary" x="690" y="390" width="500" height="300" rx="16"/>
-  <text class="box-title" x="940" y="425" text-anchor="middle">Failover Region: East US 2 (Priority 2)</text>
-
-  <rect class="infra" x="730" y="450" width="420" height="58" rx="8"/>
-  <text class="box-text" x="940" y="485" text-anchor="middle">Resource Group + VNet + App Subnet + NSG</text>
-
-  <rect class="infra" x="730" y="523" width="420" height="58" rx="8"/>
-  <text class="box-text" x="940" y="558" text-anchor="middle">Standard Public Load Balancer (HTTP rule + probe)</text>
-
-  <rect class="infra" x="730" y="596" width="420" height="58" rx="8"/>
-  <text class="box-text" x="940" y="631" text-anchor="middle">Linux VM Scale Set (2+ instances, standby)</text>
-
-  <path class="arrow-primary" d="M560 345 C510 365, 445 380, 390 390"/>
-  <path class="arrow-secondary dash" d="M720 345 C770 365, 835 380, 890 390"/>
-
-  <text class="label" x="430" y="375" text-anchor="middle">Active path</text>
-  <text class="label" x="860" y="375" text-anchor="middle">Failover path</text>
+  <path class="arrow-p" d="M620 350 C500 370, 390 380, 310 400"/>
+  <path class="arrow-s" d="M710 350 C760 370, 795 380, 815 400"/>
+  <path class="arrow-f" d="M840 350 C950 365, 1045 378, 1090 400"/>
+  <path class="arrow-d" d="M1115 575 L1115 550"/>
 </svg>

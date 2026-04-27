@@ -21,6 +21,29 @@ variable "secondary_location" {
   default     = "East US 2"
 }
 
+variable "force_failover_to_secondary" {
+  description = "When true, swaps Traffic Manager priorities so the US region becomes active."
+  type        = bool
+  default     = false
+}
+
+variable "enable_fallback_website" {
+  description = "When true, enables a static maintenance website as last-resort fallback endpoint."
+  type        = bool
+  default     = true
+}
+
+variable "dr_data_retention_days" {
+  description = "Retention period (days) for DR artifacts in geo-redundant storage."
+  type        = number
+  default     = 30
+
+  validation {
+    condition     = var.dr_data_retention_days >= 7 && var.dr_data_retention_days <= 365
+    error_message = "dr_data_retention_days must be between 7 and 365."
+  }
+}
+
 variable "regional_address_spaces" {
   description = "VNet CIDRs by region key (primary/secondary)."
   type        = map(string)

@@ -2,6 +2,9 @@
 project_name       = "azure-ha-demo"
 primary_location   = "Central India"
 secondary_location = "East US 2"
+force_failover_to_secondary = false
+enable_fallback_website     = true
+dr_data_retention_days      = 30
 
 vm_instances_per_region = 2
 vm_sku                  = "Standard_B2s"

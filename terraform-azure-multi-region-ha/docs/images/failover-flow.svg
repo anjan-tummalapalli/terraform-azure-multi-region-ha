@@ -1,78 +1,81 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="680" viewBox="0 0 1280 680" role="img" aria-labelledby="title desc">
-  <title id="title">Traffic Manager Failover Flow</title>
-  <desc id="desc">Shows how Traffic Manager probes endpoints and shifts traffic from India to US on failure.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="740" viewBox="0 0 1360 740" role="img" aria-labelledby="title desc">
+  <title id="title">Failover and Fallback Workflow</title>
+  <desc id="desc">Traffic Manager routes from primary to secondary and then fallback maintenance page if both regions fail.</desc>
   <defs>
     <style>
       .bg { fill: #f8fafc; }
-      .title { font: 700 28px Arial, sans-serif; fill: #102a43; }
+      .title { font: 700 30px Arial, sans-serif; fill: #102a43; }
       .subtitle { font: 500 16px Arial, sans-serif; fill: #334e68; }
       .step { fill: #ffffff; stroke: #9fb3c8; stroke-width: 2; }
       .step-title { font: 700 17px Arial, sans-serif; fill: #102a43; }
       .text { font: 500 14px Arial, sans-serif; fill: #243b53; }
-      .callout-ok { fill: #dcfce7; stroke: #2f855a; stroke-width: 2; }
-      .callout-fail { fill: #fee2e2; stroke: #c53030; stroke-width: 2; }
-      .callout-shift { fill: #dbeafe; stroke: #2b6cb0; stroke-width: 2; }
-      .arrow { stroke: #486581; stroke-width: 3; fill: none; marker-end: url(#arrow); }
-      .arrow-alt { stroke: #2b6cb0; stroke-width: 3; fill: none; marker-end: url(#arrow-alt); }
+      .ok { fill: #dcfce7; stroke: #15803d; stroke-width: 2; }
+      .warn { fill: #dbeafe; stroke: #1d4ed8; stroke-width: 2; }
+      .crit { fill: #fee2e2; stroke: #b91c1c; stroke-width: 2; }
+      .dr { fill: #fff1c2; stroke: #a16207; stroke-width: 2; }
+      .arrow { stroke: #486581; stroke-width: 3; fill: none; marker-end: url(#a); }
+      .arrow2 { stroke: #1d4ed8; stroke-width: 3; fill: none; marker-end: url(#b); }
+      .arrow3 { stroke: #b91c1c; stroke-width: 3; fill: none; marker-end: url(#c); }
     </style>
-    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-      <polygon points="0 0, 10 3, 0 6" fill="#486581"/>
-    </marker>
-    <marker id="arrow-alt" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-      <polygon points="0 0, 10 3, 0 6" fill="#2b6cb0"/>
-    </marker>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0, 10 3, 0 6" fill="#486581"/></marker>
+    <marker id="b" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0, 10 3, 0 6" fill="#1d4ed8"/></marker>
+    <marker id="c" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><polygon points="0 0, 10 3, 0 6" fill="#b91c1c"/></marker>
   </defs>
 
-  <rect class="bg" x="0" y="0" width="1280" height="680"/>
+  <rect class="bg" x="0" y="0" width="1360" height="740"/>
+  <text class="title" x="680" y="52" text-anchor="middle">Traffic Manager Failover and Fallback Sequence</text>
+  <text class="subtitle" x="680" y="80" text-anchor="middle">Primary -> Secondary -> Fallback maintenance endpoint when both regions are unhealthy.</text>
 
-  <text class="title" x="640" y="50" text-anchor="middle">Failover Behavior (Priority Routing)</text>
-  <text class="subtitle" x="640" y="78" text-anchor="middle">Traffic Manager continuously checks health and redirects clients when the primary endpoint fails.</text>
+  <rect class="step" x="60" y="170" width="250" height="180" rx="14"/>
+  <text class="step-title" x="185" y="212" text-anchor="middle">1. Normal</text>
+  <text class="text" x="185" y="245" text-anchor="middle">India endpoint healthy</text>
+  <text class="text" x="185" y="270" text-anchor="middle">Serves production traffic</text>
+  <text class="text" x="185" y="295" text-anchor="middle">US is standby</text>
 
-  <rect class="step" x="80" y="180" width="260" height="180" rx="14"/>
-  <text class="step-title" x="210" y="220" text-anchor="middle">1. Normal State</text>
-  <text class="text" x="210" y="255" text-anchor="middle">Priority 1 (India) healthy</text>
-  <text class="text" x="210" y="280" text-anchor="middle">Client traffic to India LB</text>
-  <text class="text" x="210" y="305" text-anchor="middle">Priority 2 (US) standby</text>
+  <rect class="step" x="340" y="170" width="250" height="180" rx="14"/>
+  <text class="step-title" x="465" y="212" text-anchor="middle">2. Detect Failure</text>
+  <text class="text" x="465" y="245" text-anchor="middle">India probe failures</text>
+  <text class="text" x="465" y="270" text-anchor="middle">Endpoint marked unhealthy</text>
+  <text class="text" x="465" y="295" text-anchor="middle">Priority 1 unavailable</text>
 
-  <rect class="step" x="380" y="180" width="260" height="180" rx="14"/>
-  <text class="step-title" x="510" y="220" text-anchor="middle">2. Detection</text>
-  <text class="text" x="510" y="255" text-anchor="middle">HTTP probes fail on India</text>
-  <text class="text" x="510" y="280" text-anchor="middle">Timeouts exceed tolerance</text>
-  <text class="text" x="510" y="305" text-anchor="middle">Endpoint marked unhealthy</text>
+  <rect class="step" x="620" y="170" width="250" height="180" rx="14"/>
+  <text class="step-title" x="745" y="212" text-anchor="middle">3. Failover to US</text>
+  <text class="text" x="745" y="245" text-anchor="middle">US endpoint becomes active</text>
+  <text class="text" x="745" y="270" text-anchor="middle">Clients keep same global DNS</text>
+  <text class="text" x="745" y="295" text-anchor="middle">No client reconfiguration</text>
 
-  <rect class="step" x="680" y="180" width="260" height="180" rx="14"/>
-  <text class="step-title" x="810" y="220" text-anchor="middle">3. Traffic Shift</text>
-  <text class="text" x="810" y="255" text-anchor="middle">India removed from answers</text>
-  <text class="text" x="810" y="280" text-anchor="middle">DNS replies with US endpoint</text>
-  <text class="text" x="810" y="305" text-anchor="middle">Users served from East US 2</text>
+  <rect class="step" x="900" y="170" width="250" height="180" rx="14"/>
+  <text class="step-title" x="1025" y="212" text-anchor="middle">4. Secondary Fails</text>
+  <text class="text" x="1025" y="245" text-anchor="middle">US endpoint also unhealthy</text>
+  <text class="text" x="1025" y="270" text-anchor="middle">Both regional endpoints down</text>
+  <text class="text" x="1025" y="295" text-anchor="middle">Fallback path activated</text>
 
-  <rect class="step" x="980" y="180" width="220" height="180" rx="14"/>
-  <text class="step-title" x="1090" y="220" text-anchor="middle">4. Recovery</text>
-  <text class="text" x="1090" y="255" text-anchor="middle">India healthy again</text>
-  <text class="text" x="1090" y="280" text-anchor="middle">Priority routing restores</text>
-  <text class="text" x="1090" y="305" text-anchor="middle">India as active endpoint</text>
+  <rect class="step" x="1180" y="170" width="140" height="180" rx="14"/>
+  <text class="step-title" x="1250" y="212" text-anchor="middle">5. Fallback</text>
+  <text class="text" x="1250" y="245" text-anchor="middle">Static site</text>
+  <text class="text" x="1250" y="270" text-anchor="middle">maintenance</text>
+  <text class="text" x="1250" y="295" text-anchor="middle">page served</text>
 
-  <path class="arrow" d="M340 270 L380 270"/>
-  <path class="arrow" d="M640 270 L680 270"/>
-  <path class="arrow" d="M940 270 L980 270"/>
+  <path class="arrow" d="M310 260 L340 260"/>
+  <path class="arrow" d="M590 260 L620 260"/>
+  <path class="arrow2" d="M870 260 L900 260"/>
+  <path class="arrow3" d="M1150 260 L1180 260"/>
 
-  <rect class="callout-ok" x="100" y="430" width="330" height="150" rx="12"/>
-  <text class="step-title" x="265" y="468" text-anchor="middle">Health Probe Config</text>
-  <text class="text" x="265" y="498" text-anchor="middle">Protocol: HTTP</text>
-  <text class="text" x="265" y="523" text-anchor="middle">Port: 80, Path: /</text>
-  <text class="text" x="265" y="548" text-anchor="middle">Interval: 30s, Tolerated Failures: 3</text>
+  <rect class="ok" x="120" y="430" width="340" height="180" rx="12"/>
+  <text class="step-title" x="290" y="470" text-anchor="middle">Automatic Behavior</text>
+  <text class="text" x="290" y="502" text-anchor="middle">Priority-based routing handles failures</text>
+  <text class="text" x="290" y="527" text-anchor="middle">without changing client URL.</text>
+  <text class="text" x="290" y="552" text-anchor="middle">Traffic manager probes every 30s.</text>
 
-  <rect class="callout-fail" x="475" y="430" width="330" height="150" rx="12"/>
-  <text class="step-title" x="640" y="468" text-anchor="middle">Fail Condition</text>
-  <text class="text" x="640" y="498" text-anchor="middle">Primary endpoint unhealthy</text>
-  <text class="text" x="640" y="523" text-anchor="middle">or unreachable by probe</text>
-  <text class="text" x="640" y="548" text-anchor="middle">Traffic Manager suppresses it</text>
+  <rect class="warn" x="510" y="430" width="340" height="180" rx="12"/>
+  <text class="step-title" x="680" y="470" text-anchor="middle">Manual DR Control</text>
+  <text class="text" x="680" y="502" text-anchor="middle">force_failover_to_secondary=true</text>
+  <text class="text" x="680" y="527" text-anchor="middle">promotes US to Priority 1.</text>
+  <text class="text" x="680" y="552" text-anchor="middle">Set false for planned failback.</text>
 
-  <rect class="callout-shift" x="850" y="430" width="330" height="150" rx="12"/>
-  <text class="step-title" x="1015" y="468" text-anchor="middle">User Impact</text>
-  <text class="text" x="1015" y="498" text-anchor="middle">No endpoint URL change for clients</text>
-  <text class="text" x="1015" y="523" text-anchor="middle">Global FQDN remains same</text>
-  <text class="text" x="1015" y="548" text-anchor="middle">Backend region switches automatically</text>
-
-  <path class="arrow-alt" d="M810 360 L1015 430"/>
+  <rect class="dr" x="900" y="430" width="340" height="180" rx="12"/>
+  <text class="step-title" x="1070" y="470" text-anchor="middle">DR Artifacts</text>
+  <text class="text" x="1070" y="502" text-anchor="middle">RA-GRS storage keeps recovery assets</text>
+  <text class="text" x="1070" y="527" text-anchor="middle">in dr-backups container with retention.</text>
+  <text class="text" x="1070" y="552" text-anchor="middle">Supports restoration runbooks.</text>
 </svg>
